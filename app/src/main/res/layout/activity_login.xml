@@ -1,64 +1,51 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".LoginActivity">
-
-
-    <Button
-        android:id="@+id/login"
-        android:layout_width="102dp"
-        android:layout_height="55dp"
-        android:text="Login"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_marginTop="538dp"
-        android:layout_marginLeft="50dp" />
-
-    <Button
-        android:id="@+id/register"
-        android:layout_width="102dp"
-        android:layout_height="55dp"
-        android:text="Register"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_marginTop="538dp"
-        android:layout_marginLeft="258dp" />
-
-    <EditText
-        android:id="@+id/editTextText"
-        android:layout_width="310dp"
-        android:layout_height="50dp"
-        android:ems="10"
-        android:inputType="text"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_marginTop="321dp"
-        android:layout_marginLeft="50dp" />
-
-
-    <EditText
-        android:id="@+id/editTextTextPassword"
-        android:layout_width="310dp"
-        android:layout_height="50dp"
-        android:ems="10"
-        android:inputType="textPassword"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_marginTop="435dp"
-        android:layout_marginLeft="50dp" />
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="20dp">
 
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="235dp"
         android:layout_height="209dp"
-        android:layout_marginLeft="96dp"
-        android:layout_marginTop="68dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/img" />
+        android:layout_marginBottom="20dp"
+        android:src="@drawable/img" />
+
+    <EditText
+        android:id="@+id/loginEmail"
+        android:layout_marginTop="10sp"
+        android:layout_width="310dp"
+        android:layout_height="50dp"
+        android:ems="10"
+        android:inputType="text"
+        android:hint="Email"
+        android:layout_marginBottom="20dp" />
+
+    <EditText
+        android:id="@+id/loginPassword"
+        android:layout_width="310dp"
+        android:layout_height="50dp"
+        android:ems="10"
+        android:hint="Password"
+        android:layout_marginTop="10sp"
+        android:inputType="textPassword"
+        android:layout_marginBottom="20dp" />
+
+    <Button
+        android:id="@+id/login"
+        android:layout_width="316dp"
+        android:layout_height="53dp"
+        android:text="Login"
+        android:layout_marginBottom="20dp" />
+
+    <TextView
+        android:id="@+id/registerUser"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="New here? Create an account"
+        android:textAlignment="center" />
 
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>
