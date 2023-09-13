@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "582093392870",
+    "project_id": "mobileass2-554bf",
+    "storage_bucket": "mobileass2-554bf.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:582093392870:android:0a6ded11cd75efa37e6427",
+        "android_client_info": {
+          "package_name": "com.example.mobileass2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "582093392870-gkrdsd3vic3g8g85ge9664ck0ts3u5ld.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC4_u5zouJ3l3hp-RkFnsj0NDrqgo0BFzw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "582093392870-gkrdsd3vic3g8g85ge9664ck0ts3u5ld.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
