@@ -1,6 +1,9 @@
 package com.example.mobileass2;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Intent;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -17,11 +20,17 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.SignInMethodQueryResult;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,13 +42,18 @@ public class RegisterActivity extends AppCompatActivity {
     public EditText password;
     public FirebaseAuth firebaseAuth;
 
+    public FirebaseFirestore fireStore;
+    public String userID;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+
         firebaseAuth = FirebaseAuth.getInstance();
+        fireStore = FirebaseFirestore.getInstance();
 
 
 
@@ -67,7 +81,6 @@ public class RegisterActivity extends AppCompatActivity {
                     email.setError("Please enter a valid email address");
                     return;
                 }
-
                 firebaseAuth.fetchSignInMethodsForEmail(getEmail).addOnCompleteListener(new OnCompleteListener<SignInMethodQueryResult>() {
                     @Override
                     public void onComplete(@NonNull Task<SignInMethodQueryResult> task) {
@@ -91,7 +104,7 @@ public class RegisterActivity extends AppCompatActivity {
                                     password.setError("Password must be more than 6 Characters");
                                     return;
                                 }
-                                registerUser(getEmail,getPassword);
+                                registerUser(getEmail,getPassword,getUsername);
                             }
                         } else {
                             Log.e("TAG", "Error checking if email is registered", task.getException());
@@ -118,13 +131,18 @@ public class RegisterActivity extends AppCompatActivity {
         });
     }
 
-    public void registerUser(String email, String password){
-
+    public void registerUser(String email, String password,String username){
         firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(RegisterActivity.this,new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if(task.isSuccessful()){
                     Toast.makeText(RegisterActivity.this, "User is Created", Toast.LENGTH_SHORT).show();
+                    userID= firebaseAuth.getUid();
+                    DocumentReference documentReference = fireStore.collection("users").document(userID);
+                    Map<String,Object> user = new HashMap<>();
+                    user.put("username",username);
+                    documentReference.set(user);
+
                 }else {
                     Toast.makeText(RegisterActivity.this, "Error", Toast.LENGTH_SHORT).show();
                 }
