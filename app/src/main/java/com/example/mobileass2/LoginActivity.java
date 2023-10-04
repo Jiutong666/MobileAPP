@@ -18,7 +18,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-//login
+
 public class LoginActivity extends AppCompatActivity {
     public Button btnLogin;
     public TextView registerUser;
