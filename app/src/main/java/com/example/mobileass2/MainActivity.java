@@ -5,33 +5,48 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
+import com.example.mobileass2.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity {
+    ActivityMainBinding binding;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        binding=ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        replaceFragment(new HomeFragment());
 
-        // For Logout Button
-        Button logOut = findViewById(R.id.logout);
-        logOut.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                startActivity(intent);
+        binding.bottomNavigationView.setOnItemSelectedListener(item -> {int id = item.getItemId();
+            if (id == R.id.home) {
+                replaceFragment(new HomeFragment());
+            } else if (id == R.id.map) {
+                replaceFragment(new MapsFragment());
+            } else if (id == R.id.profile) {
+                replaceFragment(new ProfileFragment());
             }
+
+            return true;
         });
 
-        // For Drop Button
-        Button dropButton = findViewById(R.id.drop);
-        dropButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, DropTextActivity.class);
-                startActivity(intent);
-            }
-        });
+
+
+
     }
+    private void replaceFragment (Fragment fragment){
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.frameLayout,fragment);
+        fragmentTransaction.commit();
+
+    }
+
+
 }
