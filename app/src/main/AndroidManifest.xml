@@ -14,7 +14,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MobileAss2"
         tools:targetApi="31">
-
+        <activity
+            android:name=".MapToTry"
+            android:exported="false" />
         <!--
              TODO: Before you run your application, you need a Google Maps API key.
 
