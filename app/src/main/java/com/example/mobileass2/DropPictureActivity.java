@@ -140,33 +140,57 @@ public class DropPictureActivity extends AppCompatActivity implements OnMapReady
         String path = "images/" + UUID.randomUUID() + ".png";
         StorageReference storageReference = FirebaseStorage.getInstance().getReference(path);
 
-        UploadTask uploadTask = storageReference.putBytes(data);
-        uploadTask.addOnSuccessListener(taskSnapshot -> {
+        storageReference.putBytes(data).addOnSuccessListener(taskSnapshot -> {
             // Handle successful uploads
             storageReference.getDownloadUrl().addOnSuccessListener(downloadUri -> {
                 String imageURL = downloadUri.toString();
 
                 String title = titleEditText.getText().toString().trim();
-                Map<String, Object> docData = new HashMap<>();
-                docData.put("title", title);
-                docData.put("imageUrl", imageURL);
 
-                // Save to Firestore
-                fireStore.collection("images").document().set(docData)
-                        .addOnSuccessListener(aVoid -> {
-                            Toast.makeText(DropPictureActivity.this, "Image and data stored successfully", Toast.LENGTH_SHORT).show();
-                            startLocationUpdates(); // Place marker on map after upload
-                        })
-                        .addOnFailureListener(e -> Toast.makeText(DropPictureActivity.this, "Error storing data", Toast.LENGTH_SHORT).show());
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
+                fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
+                    if (location != null) {
+                        double latitude = location.getLatitude();
+                        double longitude = location.getLongitude();
+                        String userEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+
+                        // Prepare the data to be saved
+                        Map<String, Object> docData = new HashMap<>();
+                        docData.put("title", title);
+                        docData.put("imageUrl", imageURL);
+                        docData.put("latitude", latitude);
+                        docData.put("longitude", longitude);
+                        docData.put("userEmail", userEmail);
+
+                        // Save to Firestore
+                        fireStore.collection("images").document().set(docData)
+                                .addOnSuccessListener(aVoid -> {
+                                    Toast.makeText(DropPictureActivity.this, "Image and data stored successfully", Toast.LENGTH_SHORT).show();
+                                    startLocationUpdates(); // Place marker on map after upload
+                                })
+                                .addOnFailureListener(e -> Toast.makeText(DropPictureActivity.this, "Error storing data", Toast.LENGTH_SHORT).show());
+                    } else {
+                        Toast.makeText(DropPictureActivity.this, "Unable to fetch location", Toast.LENGTH_SHORT).show();
+                    }
+                }).addOnFailureListener(exception -> {
+                    Toast.makeText(DropPictureActivity.this, "Location fetch failed: " + exception.getMessage(), Toast.LENGTH_LONG).show();
+                });
             });
-        }).addOnFailureListener(exception -> {
-            // Handle unsuccessful uploads
         }).addOnFailureListener(exception -> {
             // Handle unsuccessful uploads
             Toast.makeText(DropPictureActivity.this, "Upload failed: " + exception.getMessage(), Toast.LENGTH_LONG).show();
         });
-
     }
+
 
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
