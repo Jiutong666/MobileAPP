@@ -17,6 +17,7 @@ import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -58,7 +59,9 @@ public class DropPictureActivity extends AppCompatActivity implements OnMapReady
 
     private EditText titleEditText;
     private ImageView imageView;
-    private Button uploadButton, captureButton;
+    private Button uploadButton;
+
+    private ImageButton captureButton;
 
     private FirebaseFirestore fireStore;
 

@@ -11,7 +11,7 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Upload or Capture Image"
+        android:text="Drop Your Image"
         android:textSize="24sp"
         android:textColor="#FFFFFF"
         android:layout_marginTop="16dp"
@@ -20,8 +20,6 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Image view to show the uploaded or captured image -->
-
-    <!-- EditText for image description -->
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="0dp"
@@ -38,6 +36,24 @@
         app:layout_constraintWidth_percent="0.9"
         tools:srcCompat="@tools:sample/backgrounds/scenic" />
 
+    <!-- Button for image capture using camera -->
+
+    <!-- EditText for image description -->
+
+    <ImageButton
+        android:id="@+id/captureButton"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/capture_button_background"
+        android:padding="10dp"
+        android:scaleType="fitCenter"
+        android:src="@android:drawable/ic_menu_camera"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/imageView" />
+
     <EditText
         android:id="@+id/textInputEditText"
         android:layout_width="373dp"
@@ -53,11 +69,9 @@
         android:textColorHint="#FFFFFF"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/imageView" />
+        app:layout_constraintTop_toBottomOf="@id/captureButton" />
 
     <!-- Button for image upload from gallery or camera -->
-
-    <!-- Button for image capture using camera -->
     <Button
         android:id="@+id/uploadButton"
         android:layout_width="0dp"
@@ -73,20 +87,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/textInputEditText" />
 
-    <Button
-        android:id="@+id/captureButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginEnd="32dp"
-        android:backgroundTint="#FF9800"
-        android:textColor="#FFFFFF"
-        android:text="Capture Image"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/uploadButton" />
-
     <!-- Google Maps Fragment -->
     <fragment
         android:id="@+id/map"
@@ -96,7 +96,7 @@
         android:layout_marginTop="16dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/captureButton"
+        app:layout_constraintTop_toBottomOf="@+id/uploadButton"
         app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
