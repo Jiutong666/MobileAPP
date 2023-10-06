@@ -141,6 +141,7 @@ public class RegisterActivity extends AppCompatActivity {
                     DocumentReference documentReference = fireStore.collection("users").document(userID);
                     Map<String,Object> user = new HashMap<>();
                     user.put("username",username);
+                    user.put("email",email);
                     documentReference.set(user);
 
                 }else {
