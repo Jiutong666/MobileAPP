@@ -1,35 +1,22 @@
 package com.example.mobileass2;
 
-import static android.content.ContentValues.TAG;
-
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentActivity;
-
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -58,7 +45,9 @@ public class DropTextActivity extends AppCompatActivity implements OnMapReadyCal
     private GoogleMap googleMap;
     private FusedLocationProviderClient fusedLocationClient;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
-    private TextInputEditText textInputEditText;
+    private TextInputEditText  contentEditText;
+
+    private EditText titleEditText;
     private Button showLocationButton;
 
     private TextView textView;
@@ -79,13 +68,23 @@ public class DropTextActivity extends AppCompatActivity implements OnMapReadyCal
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         // Initialize textInputEditText and showLocationButton
-        textInputEditText = findViewById(R.id.textInputEditText);
+        titleEditText = findViewById(R.id.textInputEditText2);   // Assuming this is your title EditText
+        contentEditText = findViewById(R.id.textInputEditText);
         showLocationButton = findViewById(R.id.buttonShowLocation);
 
         fireStore = FirebaseFirestore.getInstance();
         showLocationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Get the text from textInputEditText
+                String titleText = titleEditText.getText().toString().trim();
+                String contentText = contentEditText.getText().toString().trim();
+                if (titleText.isEmpty() || contentText.isEmpty()) {
+                    // Handle the case where either title or content or both are empty
+                    Toast.makeText(DropTextActivity.this, "Please fill both fields.", Toast.LENGTH_SHORT).show();
+                    return; // Stop further execution if any input is empty
+                }
+
                 // Check if GoogleMap is initialized
                 if (googleMap != null) {
                     try {
@@ -94,15 +93,6 @@ public class DropTextActivity extends AppCompatActivity implements OnMapReadyCal
 
                         // Start location updates (if needed)
                         startLocationUpdates();
-
-                        // Get the text from textInputEditText
-                        String locationText = textInputEditText.getText().toString();
-
-                        if (locationText.isEmpty()) {
-                            // Handle the case where the textInputEditText is empty
-                            Toast.makeText(DropTextActivity.this, "Enter a location text", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
 
                         // Display coordinates in the TextView
                         displayCoordinates();
@@ -116,13 +106,12 @@ public class DropTextActivity extends AppCompatActivity implements OnMapReadyCal
                                     double longitude = location.getLongitude();
 
                                     // Store the data in Firestore
-                                    storeDataToFirestore(locationText, latitude, longitude);
-
+                                    storeDataToFirestore(titleText, contentText, latitude, longitude);
                                     // Place a marker on the map
                                     LatLng currentLatLng = new LatLng(latitude, longitude);
                                     googleMap.addMarker(new MarkerOptions()
                                             .position(currentLatLng)
-                                            .title(locationText)
+                                            .title(titleText)
                                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET))); // Set marker color to purple
 
                                     // Move the camera to the current location
@@ -137,6 +126,7 @@ public class DropTextActivity extends AppCompatActivity implements OnMapReadyCal
                 }
             }
         });
+
 
 
 
@@ -182,15 +172,16 @@ public class DropTextActivity extends AppCompatActivity implements OnMapReadyCal
                 });
     }
 
-    private void storeDataToFirestore(String locationText, double latitude, double longitude) {
+    private void storeDataToFirestore(String title, String content, double latitude, double longitude) {
         String userEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
         Map<String, Object> data = new HashMap<>();
-        data.put("locationText", locationText);
+        data.put("title", title);
+        data.put("content", content);
         data.put("latitude", latitude);
         data.put("longitude", longitude);
         data.put("userEmail", userEmail);
 
-        fireStore.collection("locations").add(data)
+        fireStore.collection("texts").add(data)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
@@ -204,7 +195,6 @@ public class DropTextActivity extends AppCompatActivity implements OnMapReadyCal
                     }
                 });
     }
-
 
 
     @Override
@@ -263,7 +253,7 @@ public class DropTextActivity extends AppCompatActivity implements OnMapReadyCal
                             // re-add the marker and move the camera
                             googleMap.clear();
 
-                            String locationText = textInputEditText.getText().toString();
+                            String locationText = titleEditText.getText().toString();
                             googleMap.addMarker(new MarkerOptions()
                                     .position(currentLatLng)
                                     .title(locationText.isEmpty() ? "My Location" : locationText)
