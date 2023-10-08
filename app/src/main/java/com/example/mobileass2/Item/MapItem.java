@@ -1,6 +1,8 @@
 package com.example.mobileass2.Item;
 
-public class MapItem {
+import java.io.Serializable;
+
+public class MapItem implements Serializable {
     public String id;
     public String title;
     public double latitude;
@@ -16,15 +18,15 @@ public class MapItem {
     public MapItem() {
     }
 
-    public MapItem(String id, String title, double latitude, double longitude, String type, String description, int visitCount, int likeCount) {
-        this.id = id;
+    public MapItem(String title, double latitude, double longitude, String description) {
+//        this.id = id;
         this.title = title;
         this.latitude = latitude;
         this.longitude = longitude;
-        this.type = type;
+//        this.type = type;
         this.description = description;
-        this.visitCount = visitCount;
-        this.likeCount = likeCount;
+//        this.visitCount = visitCount;
+//        this.likeCount = likeCount;
     }
 
     public String getImageUrl() {

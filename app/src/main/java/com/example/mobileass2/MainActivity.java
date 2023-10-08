@@ -36,9 +36,6 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
 
-
-
-
     }
     private void replaceFragment (Fragment fragment){
         FragmentManager fragmentManager = getSupportFragmentManager();
