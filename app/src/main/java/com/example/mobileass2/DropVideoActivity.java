@@ -1,15 +1,15 @@
 package com.example.mobileass2;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
-
+import android.widget.VideoView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -18,10 +18,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.util.IOUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -34,164 +33,141 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 
-import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
-public class DropPictureActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class DropVideoActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap googleMap;
     private FusedLocationProviderClient fusedLocationClient;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
-    private static final int REQUEST_IMAGE_CAPTURE = 2;
+    private static final int REQUEST_VIDEO_CAPTURE = 2;
+
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 3;
 
     private EditText titleEditText;
-    private ImageView imageView;
+    private VideoView videoView;
     private Button uploadButton;
-
     private ImageButton captureButton;
-
     private FirebaseFirestore fireStore;
+    private Uri videoUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_droppicture);
+        setContentView(R.layout.activity_dropvideo);
 
-        // Initialize Firebase and Location Services
         fireStore = FirebaseFirestore.getInstance();
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-        // UI Components
         titleEditText = findViewById(R.id.textInputEditText);
-        imageView = findViewById(R.id.imageView);
+        videoView = findViewById(R.id.videoView);
         uploadButton = findViewById(R.id.uploadButton);
         captureButton = findViewById(R.id.captureButton);
 
-        // Handle Map
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        // Button Click Handlers
-        captureButton.setOnClickListener(v -> captureImage());
+        captureButton.setOnClickListener(v -> captureVideo());
         uploadButton.setOnClickListener(v -> {
-            if (imageView.getDrawable() != null) {
-                uploadImageToFirebase();
+            if (videoView.getDuration() > 0) {
+                uploadVideoToFirebase();
             } else {
-                Toast.makeText(DropPictureActivity.this, "No image to upload!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(DropVideoActivity.this, "No video to upload!", Toast.LENGTH_SHORT).show();
             }
         });
-        // Check Location Permission
+
         checkLocationPermission();
     }
 
-    private void captureImage() {
+
+
+    private void captureVideo() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_REQUEST_CODE);
         } else {
-            Intent captureImage = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            if (captureImage.resolveActivity(getPackageManager()) != null) {
-                startActivityForResult(captureImage, REQUEST_IMAGE_CAPTURE);
+            Intent captureVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+            if (captureVideoIntent.resolveActivity(getPackageManager()) != null) {
+                startActivityForResult(captureVideoIntent, REQUEST_VIDEO_CAPTURE);
             }
         }
     }
 
+
     private void checkLocationPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             enableMyLocation();
         } else {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    LOCATION_PERMISSION_REQUEST_CODE);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
         }
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            Bundle extras = data.getExtras();
-            Bitmap imageBitmap = (Bitmap) extras.get("data");
-            imageView.setImageBitmap(imageBitmap);
+        if (requestCode == REQUEST_VIDEO_CAPTURE && resultCode == RESULT_OK) {
+            this.videoUri = data.getData();
+            videoView.setVideoURI(videoUri);
+            videoView.setOnPreparedListener(MediaPlayer::start);
         }
     }
 
-    private void uploadImageToFirebase() {
-        // Convert ImageView to ByteArray
-        imageView.setDrawingCacheEnabled(true);
-        imageView.buildDrawingCache();
-        Bitmap bitmap = imageView.getDrawingCache();
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
-        byte[] data = outputStream.toByteArray();
+    private void uploadVideoToFirebase() {
+        if (videoUri == null) {
+            Toast.makeText(DropVideoActivity.this, "No video to upload!", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        // Generate a unique path for the image
-        String path = "images/" + UUID.randomUUID() + ".png";
+        String path = "videos/" + UUID.randomUUID() + ".mp4";
         StorageReference storageReference = FirebaseStorage.getInstance().getReference(path);
 
-        storageReference.putBytes(data).addOnSuccessListener(taskSnapshot -> {
-            // Handle successful uploads
-            storageReference.getDownloadUrl().addOnSuccessListener(downloadUri -> {
-                String imageURL = downloadUri.toString();
+        storageReference.putFile(videoUri).addOnSuccessListener(taskSnapshot -> storageReference.getDownloadUrl().addOnSuccessListener(downloadUri -> {
+            String videoURL = downloadUri.toString();
+            String title = titleEditText.getText().toString().trim();
 
-                String title = titleEditText.getText().toString().trim();
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // Ask for location permissions if they're not granted or handle it accordingly.
+                Toast.makeText(DropVideoActivity.this, "Location permissions not granted.", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
-                    return;
+            fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
+                if (location != null) {
+                    double latitude = location.getLatitude();
+                    double longitude = location.getLongitude();
+                    String userEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+
+                    // Prepare the data to be saved
+                    Map<String, Object> docData = new HashMap<>();
+                    docData.put("title", title);
+                    docData.put("videoUrl", videoURL);
+                    docData.put("latitude", latitude);
+                    docData.put("longitude", longitude);
+                    docData.put("userEmail", userEmail);
+
+                    // Save to Firestore
+                    fireStore.collection("videos").document().set(docData)
+                            .addOnSuccessListener(aVoid -> {
+                                Toast.makeText(DropVideoActivity.this, "Video and data stored successfully", Toast.LENGTH_SHORT).show();
+                                startLocationUpdates();
+                            })
+                            .addOnFailureListener(e -> Toast.makeText(DropVideoActivity.this, "Error storing data", Toast.LENGTH_SHORT).show());
+                } else {
+                    Toast.makeText(DropVideoActivity.this, "Unable to fetch location", Toast.LENGTH_SHORT).show();
                 }
-                fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
-                    if (location != null) {
-                        double latitude = location.getLatitude();
-                        double longitude = location.getLongitude();
-                        String userEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-
-                        // Prepare the data to be saved
-                        Map<String, Object> docData = new HashMap<>();
-                        docData.put("title", title);
-                        docData.put("imageUrl", imageURL);
-                        docData.put("latitude", latitude);
-                        docData.put("longitude", longitude);
-                        docData.put("userEmail", userEmail);
-
-                        // Save to Firestore
-                        fireStore.collection("images").document().set(docData)
-                                .addOnSuccessListener(aVoid -> {
-                                    Toast.makeText(DropPictureActivity.this, "Image and data stored successfully", Toast.LENGTH_SHORT).show();
-                                    startLocationUpdates(); // Place marker on map after upload
-                                })
-                                .addOnFailureListener(e -> Toast.makeText(DropPictureActivity.this, "Error storing data", Toast.LENGTH_SHORT).show());
-                    } else {
-                        Toast.makeText(DropPictureActivity.this, "Unable to fetch location", Toast.LENGTH_SHORT).show();
-                    }
-                }).addOnFailureListener(exception -> {
-                    Toast.makeText(DropPictureActivity.this, "Location fetch failed: " + exception.getMessage(), Toast.LENGTH_LONG).show();
-                });
+            }).addOnFailureListener(exception -> {
+                Toast.makeText(DropVideoActivity.this, "Location fetch failed: " + exception.getMessage(), Toast.LENGTH_LONG).show();
             });
-        }).addOnFailureListener(exception -> {
-            // Handle unsuccessful uploads
-            Toast.makeText(DropPictureActivity.this, "Upload failed: " + exception.getMessage(), Toast.LENGTH_LONG).show();
+        })).addOnFailureListener(exception -> {
+            Toast.makeText(DropVideoActivity.this, "Upload failed: " + exception.getMessage(), Toast.LENGTH_LONG).show();
         });
     }
 
@@ -209,7 +185,7 @@ public class DropPictureActivity extends AppCompatActivity implements OnMapReady
             }
         } else if (requestCode == CAMERA_PERMISSION_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                captureImage(); // Retrying the capture video intent
+                captureVideo(); // Retrying the capture video intent
             } else {
                 Toast.makeText(this, "Camera permission denied", Toast.LENGTH_SHORT).show();
             }
@@ -261,7 +237,7 @@ public class DropPictureActivity extends AppCompatActivity implements OnMapReady
                             googleMap.addMarker(new MarkerOptions()
                                     .position(currentLatLng)
                                     .title(locationText.isEmpty() ? "My Location" : locationText)
-                                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+                                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
 
                             // Move the camera to the current location
                             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15));
@@ -284,5 +260,7 @@ public class DropPictureActivity extends AppCompatActivity implements OnMapReady
         googleMap = map;
         // You can customize the map and add markers or other functionality here.
     }
-    // The rest of your functions for location updates, Firestore database updates, etc. will remain the same as in DropTextActivity
+    // ... (the rest of the methods remain unchanged, such as enableMyLocation, startLocationUpdates, onMapReady, etc.)
+
 }
+

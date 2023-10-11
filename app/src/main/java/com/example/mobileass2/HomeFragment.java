@@ -79,6 +79,13 @@ public class HomeFragment extends Fragment {
             startActivity(intent);
         });
 
+        Button shareVideoButton = view.findViewById(R.id.shareVideoButton);
+        shareVideoButton.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), DropVideoActivity.class);
+            startActivity(intent);
+        });
+
+
         // Find the FloatingActionButton and ButtonContainer
         FloatingActionButton fabAdd = view.findViewById(R.id.fabAdd);
         LinearLayout buttonContainer = view.findViewById(R.id.buttonContainer);

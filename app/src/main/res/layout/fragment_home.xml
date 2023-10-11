@@ -41,12 +41,12 @@
             android:textSize="16sp" />
 
         <Button
-            android:id="@+id/shareVoiceButton"
+            android:id="@+id/shareVideoButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/design_default_color_secondary"
             android:padding="12dp"
-            android:text="Share Voice"
+            android:text="Share Video"
             android:textColor="#FFFFFF"
             android:textSize="16sp" />
 
