@@ -2,6 +2,7 @@ package com.example.mobileass2;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -186,6 +187,12 @@ public class DropTextActivity extends AppCompatActivity implements OnMapReadyCal
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
                         Toast.makeText(DropTextActivity.this, "Data stored successfully", Toast.LENGTH_SHORT).show();
+
+                        // Get the ID of the created document and pass to the display page
+                        String packageId = documentReference.getId(); // Send the ID to MainActivity and start it
+                        Intent intent = new Intent(DropTextActivity.this, DisplayTextActivity.class);
+                        intent.putExtra("PACKAGE_ID", packageId); // Pass the ID as an extra
+                        startActivity(intent);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -194,6 +201,7 @@ public class DropTextActivity extends AppCompatActivity implements OnMapReadyCal
                         Toast.makeText(DropTextActivity.this, "Error storing data", Toast.LENGTH_SHORT).show();
                     }
                 });
+
     }
 
 
