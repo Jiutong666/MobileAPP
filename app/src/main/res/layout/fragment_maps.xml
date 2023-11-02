@@ -12,22 +12,21 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <!-- Info Window (Floating Window at the bottom) -->
-    <RelativeLayout
-        android:id="@+id/infoWindow"
+    <!-- Bottom Sheet Layout -->
+    <LinearLayout
+        android:id="@+id/floating_window"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:visibility="gone"
-        android:padding="10dp"
-        android:background="#FFFFFF">
+        android:background="#CCffffff"
+        android:orientation="vertical"
+        android:padding="16dp">
 
+        <!-- 在这里添加你的悬浮窗内容 -->
         <TextView
-            android:id="@+id/markerInfo"
+            android:id="@+id/marker_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Marker Info Here" />
-
-    </RelativeLayout>
-
+            android:text=""/>
+    </LinearLayout>
 </RelativeLayout>
