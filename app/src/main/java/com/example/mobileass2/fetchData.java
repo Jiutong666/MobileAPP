@@ -22,40 +22,6 @@ import java.io.IOException;
 import java.io.FileInputStream;
 import java.nio.charset.StandardCharsets;
 
-/*
-
-public class MapToTry extends AppCompatActivity {
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_map_to_try);
-
-        CollectionReference collectionRef = FirebaseFirestore.getInstance().collection("texts");
-        collectionRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        if (document.exists()) {
-                            // 获取latitude和longitude的值
-                            Double latitude = document.getDouble("latitude");
-                            Double longitude = document.getDouble("longitude");
-
-                            // 打印document id, latitude和longitude
-                            Log.d("Firestore", "Document ID: " + document.getId() + ", Latitude: " + latitude + ", Longitude: " + longitude);
-                        }
-                    }
-                } else {
-                    Log.w("Firestore", "Error getting documents.", task.getException());
-                }
-            }
-        });
-
-
-    }
-}*/
-
 
 public class fetchData extends AppCompatActivity implements View.OnClickListener{
 
@@ -73,7 +39,7 @@ public class fetchData extends AppCompatActivity implements View.OnClickListener
     @Override
     protected void onStart() {
         super.onStart();
-/*        fetchDataAndSave();*/
+        fetchDataAndSave();
         textJson = readDataFromInternalStorage("text.json");
         imageJson = readDataFromInternalStorage("image.json");
         videoJson = readDataFromInternalStorage("video.json");
@@ -219,6 +185,8 @@ public class fetchData extends AppCompatActivity implements View.OnClickListener
         String fileName = fileN; // 文件名
         File directory = new File(getExternalFilesDir(null), dirName); // 获取应用的外部文件目录，并指定子目录名
         File file = new File(directory, fileName);
+
+        Log.d(TAG, "readDataFromInternalStorage: " + file);
 
         StringBuilder stringBuilder = new StringBuilder();
 
