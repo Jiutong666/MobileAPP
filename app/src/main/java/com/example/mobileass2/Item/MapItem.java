@@ -14,6 +14,23 @@ public class MapItem {
     private int viewNo;
     private int commentNo;
 
+    @Override
+    public String toString() {
+        return "MapItem{" +
+                "type='" + type + '\'' +
+                ", content='" + content + '\'' +
+                ", imageUrl='" + imageUrl + '\'' +
+                ", videoUrl='" + videoUrl + '\'' +
+                ", latitude=" + latitude +
+                ", longitude=" + longitude +
+                ", title='" + title + '\'' +
+                ", userEmail='" + userEmail + '\'' +
+                ", likeNo=" + likeNo +
+                ", viewNo=" + viewNo +
+                ", commentNo=" + commentNo +
+                '}';
+    }
+
     // Constructor
     public MapItem(String type, String content, double latitude, double longitude, String title, String userEmail) {
         this.type = type;

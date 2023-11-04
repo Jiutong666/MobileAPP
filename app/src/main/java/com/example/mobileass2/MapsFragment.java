@@ -9,6 +9,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.mobileass2.Item.MapItem;
@@ -17,6 +19,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -45,6 +48,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
     private HashMap<String, MapItem> videosMap = new HashMap<>();
 
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private RelativeLayout floatingWindow;
 
     // 第一次从数据库读取全部数据
     public void writeInItem(QueryDocumentSnapshot document, String itemType) {
@@ -262,6 +266,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
             Marker marker = mMap.addMarker(new MarkerOptions()
                             .position(position)
                             .title(item.getType())
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.video))// 设置自定义图标
                     // Here you can add more customization to your marker
             );
 
@@ -275,11 +280,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
 
     private void updateAllMarkers() {
         // Clear existing markers if necessary
-        mMap.clear();
+/*        mMap.clear();*/
 
         // Add markers for all item types
-//        addMarkersToMap(textsMap); // Add text item markers
-//        addMarkersToMap(imagesMap); // Add image item markers
+/*        addMarkersToMap(textsMap); // Add text item markers
+        addMarkersToMap(imagesMap); // Add image item markers*/
         addMarkersToMap(videosMap); // Add video item markers
     }
 
@@ -291,8 +296,12 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
         LatLng sydney = new LatLng(37.4219983, -122.084);
         float zoomLevel = 10.0f; // 设置缩放级别为15
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, zoomLevel));
-
         mMap.setOnMarkerClickListener(marker -> {
+            // 每当marker被点击时，检查并更新浮动窗口的可见性
+            if (floatingWindow.getVisibility() == View.GONE) {
+                floatingWindow.setVisibility(View.VISIBLE); // 如果之前是隐藏的，现在显示它
+            }
+
             String markerType = marker.getTitle();
             String title;
             String content;
@@ -334,16 +343,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
         readItem();
         updateAllMarkers();
 
-        //        mMap.addMarker(new MarkerOptions()
-//                .position(sydney)
-//                .title("Marker in Sydney")
-//                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
-//        );
-
-        // 加载JSON文件并添加标记
-//        addMarkersFromJson("text.json", BitmapDescriptorFactory.HUE_RED);
-//        addMarkersFromJson("image.json", BitmapDescriptorFactory.HUE_BLUE);
-//        addMarkersFromJson("video.json", BitmapDescriptorFactory.HUE_GREEN);
     }
 
 
@@ -367,6 +366,19 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
         if (mapFragment != null) {
             mapFragment.getMapAsync(this);
         }
+
+        // 初始化你之前定义的视图...
+        floatingWindow = view.findViewById(R.id.floating_window);
+        // 设置关闭按钮
+        ImageButton closeButton = view.findViewById(R.id.close_button);
+        closeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 隐藏floating_window
+                floatingWindow.setVisibility(View.GONE);
+            }
+        });
+
     }
 
 //    private String readFromFile (File file) {
