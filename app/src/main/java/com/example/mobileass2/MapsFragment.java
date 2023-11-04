@@ -11,36 +11,26 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.example.mobileass2.Item.ImageItem;
-import com.example.mobileass2.Item.Item;
-import com.example.mobileass2.Item.TextIMaptem;
-import com.example.mobileass2.Item.VideoItem;
+import com.example.mobileass2.Item.MapItem;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.List;
 
 
 public class MapsFragment extends Fragment implements OnMapReadyCallback{
@@ -48,17 +38,20 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
     private static final String TAG = "MapsFragment";
     private GoogleMap mMap;
     private TextView markerTitleTextView;
+    private TextView markerDscrpTextView;
 
-    private HashMap<String, TextIMaptem> textsMap = new HashMap<>(); // 用来存储Text对象的HashMap
-    private HashMap<String, ImageItem> imagesMap = new HashMap<>();
-    private HashMap<String, VideoItem> videosMap = new HashMap<>();
+    private HashMap<String, MapItem> textsMap = new HashMap<>(); // 用来存储Text对象的HashMap
+    private HashMap<String, MapItem> imagesMap = new HashMap<>();
+    private HashMap<String, MapItem> videosMap = new HashMap<>();
 
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+    // 第一次从数据库读取全部数据
     public void writeInItem(QueryDocumentSnapshot document, String itemType) {
         switch (itemType){
             case "text":
-                TextIMaptem textIMaptem = new TextIMaptem(
+                MapItem textMapItem = new MapItem(
+                        "text",
                         document.getString("content"),
                         document.getDouble("latitude"),
                         document.getDouble("longitude"),
@@ -66,11 +59,12 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
                         document.getString("userEmail")
                 );
                 // 将Text对象添加到HashMap中，以document的ID为键
-                textsMap.put(document.getId(), textIMaptem);
+                textsMap.put(document.getId(), textMapItem);
+                break;
 
             case "image":
-
-                ImageItem imageItem = new ImageItem(
+                MapItem imageItem = new MapItem(
+                        "image",
                         document.getString("imageUrl"),
                         document.getDouble("latitude"),
                         document.getDouble("longitude"),
@@ -78,9 +72,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
                         document.getString("userEmail")
                 );
                 imagesMap.put(document.getId(), imageItem);
+                break;
 
             case "video":
-                VideoItem videoItem = new VideoItem(
+                MapItem videoItem = new MapItem(
+                        "video",
                         document.getString("videoUrl"),
                         document.getDouble("latitude"),
                         document.getDouble("longitude"),
@@ -88,10 +84,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
                         document.getString("userEmail")
                 );
                 videosMap.put(document.getId(), videoItem);
+                break;
         }
     }
 
-
+    public String TAG1= "readItem";
 
     public void readItem() {
         db.collection("texts")
@@ -104,12 +101,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
                                 writeInItem(document, "text");
                             }
                             // 打印获取到的数据到日志，用于调试
-                            for (HashMap.Entry<String, TextIMaptem> entry : textsMap.entrySet()) {
-                                Log.d(TAG, "Key: " + entry.getKey() + " Value: " + entry.getValue().toString());
+                            for (HashMap.Entry<String, MapItem> entry : textsMap.entrySet()) {
+                                Log.d(TAG1, "Key: " + entry.getKey() + " Value: " + entry.getValue().toString());
                             }
-
                         } else {
-                            Log.w(TAG, "Error getting documents.", task.getException());
+                            Log.w(TAG1, "Error getting documents.", task.getException());
                         }
                     }
                 });
@@ -124,12 +120,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
                                         writeInItem(document, "image");
                             }
                             // 打印获取到的数据到日志，用于调试
-                            for (HashMap.Entry<String, ImageItem> entry : imagesMap.entrySet()) {
-                                Log.d(TAG, "Key: " + entry.getKey() + " Value: " + entry.getValue().toString());
+                            for (HashMap.Entry<String, MapItem> entry : imagesMap.entrySet()) {
+                                Log.d(TAG1, "Key: " + entry.getKey() + " Value: " + entry.getValue().toString());
                             }
-
                         } else {
-                            Log.w(TAG, "Error getting documents.", task.getException());
+                            Log.w(TAG1, "Error getting documents.", task.getException());
                         }
                     }
                 });
@@ -143,35 +138,138 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 writeInItem(document, "video");
                             }
-                            // 打印获取到的数据到日志，用于调试
-                            for (HashMap.Entry<String, VideoItem> entry : videosMap.entrySet()) {
-                                Log.d(TAG, "Key: " + entry.getKey() + " Value: " + entry.getValue().toString());
-                            }
 
+                            addMarkersToMap(videosMap);
+
+                            // 打印获取到的数据到日志，用于调试
+//                            for (HashMap.Entry<String, VideoItem> entry : videosMap.entrySet()) {
+//                                Log.d(TAG1, "Key: " + entry.getKey() + " Value: " + entry.getValue().toString());
+//
+//                                String id = entry.getKey(); // The ID from your map entry
+//                                Item item = entry.getValue();
+//                                LatLng position = new LatLng(item.getLatitude(), item.getLongitude());
+//
+//                                // Add a marker to the map with the position and title from the Item
+//                                Marker marker = mMap.addMarker(new MarkerOptions()
+//                                        .position(position)
+//                                        .title(item.getTitle())
+//                                );
+//
+//                                marker.setTag(id);
+//
+//                                Log.d("addMarkersToMap", "Marker added with ID: " + id + " at position: " + position);
+//
+//
+//                            }
                         } else {
-                            Log.w(TAG, "Error getting documents.", task.getException());
+                            Log.w(TAG1, "Error getting documents.", task.getException());
                         }
                     }
                 });
     }
 
+    // 实时监听数据库变化
+    public void startListeningForTextItems() {
+        db.collection("texts")
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot snapshots,
+                                        @Nullable FirebaseFirestoreException e) {
+                        if (e != null) {
+                            Log.w(TAG, "Listen failed.", e);
+                            return;
+                        }
+                        handleDocumentChanges(snapshots.getDocumentChanges(), "text");
+                        Log.d(TAG, "Realtime update received.");
+                    }
+                });
+
+        db.collection("images")
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot snapshots,
+                                        @Nullable FirebaseFirestoreException e) {
+                        if (e != null) {
+                            Log.w(TAG, "Listen failed.", e);
+                            return;
+                        }
+                        handleDocumentChanges(snapshots.getDocumentChanges(), "image");
+                        Log.d(TAG, "Realtime update received.");
+                    }
+                });
+
+        db.collection("video")
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot snapshots,
+                                        @Nullable FirebaseFirestoreException e) {
+                        if (e != null) {
+                            Log.w(TAG, "Listen failed.", e);
+                            return;
+                        }
+                        handleDocumentChanges(snapshots.getDocumentChanges(), "video");
+                        Log.d(TAG, "Realtime update received.");
+                    }
+                });
+    }
+
+    // 这个方法处理收到的所有文档变化
+    private void handleDocumentChanges(List<DocumentChange> documentChanges, String type) {
+        for (DocumentChange dc : documentChanges) {
+            QueryDocumentSnapshot document = dc.getDocument();
+            switch (dc.getType()) {
+                case ADDED:
+                case MODIFIED:
+                    writeInItem(document, type);
+                    break;
+                case REMOVED:
+                    removeItem(document.getId(), type);
+                    textsMap.remove(document.getId());
+                    break;
+            }
+        }
+    }
+
+    // 在hashMap中删除数据库中没有的数据
+    private void removeItem(String id, String type) {
+        Marker marker;
+        switch (type) {
+            case "text":
+                textsMap.remove(id);
+                break;
+            case "image":
+                imagesMap.remove(id);
+                break;
+            case "video":
+                videosMap.remove(id);
+                break;
+        }
+    }
+
+//    public void removeMarker(String markerId, String type) {
+//
+//        Marker marker = mMap.get(markerId);
+//    }
 
 
-    private void addMarkersToMap(HashMap<String, ? extends Item> itemsMap) {
-        for (Map.Entry<String, ? extends Item> entry : itemsMap.entrySet()) {
+    private void addMarkersToMap(HashMap<String, MapItem> itemsMap) {
+        for (HashMap.Entry<String, MapItem> entry : itemsMap.entrySet()) {
             String id = entry.getKey(); // The ID from your map entry
-            Item item = entry.getValue();
+            MapItem item = entry.getValue();
             LatLng position = new LatLng(item.getLatitude(), item.getLongitude());
 
             // Add a marker to the map with the position and title from the Item
             Marker marker = mMap.addMarker(new MarkerOptions()
                             .position(position)
-                            .title(item.getTitle())
+                            .title(item.getType())
                     // Here you can add more customization to your marker
             );
 
             // Set the ID as the tag for the marker
             marker.setTag(id);
+
+            Log.d("addMarkersToMap", "Marker added with ID: " + id + " at position: " + position);
+
         }
     }
 
@@ -187,18 +285,47 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+
         Log.d(TAG, "Map is ready");
         mMap = googleMap;
         LatLng sydney = new LatLng(37.4219983, -122.084);
-        float zoomLevel = 15.0f; // 设置缩放级别为15
+        float zoomLevel = 10.0f; // 设置缩放级别为15
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, zoomLevel));
 
-//        mMap.setOnMarkerClickListener(marker -> {
-//            markerTitleTextView.setText(marker.getTitle());
-//            marker.showInfoWindow(); // 显示信息窗口
-//            markerTitleTextView.setVisibility(View.VISIBLE); // 显示悬浮窗
-//            return false;
-//        });
+        mMap.setOnMarkerClickListener(marker -> {
+            String markerType = marker.getTitle();
+            String title;
+            String content;
+            String id = (String) marker.getTag();
+
+            switch (markerType) {
+                case "text":
+                    title = textsMap.get(id).getTitle();
+                    content = textsMap.get(id).getContent();
+                    break;
+                case "image":
+                    title = imagesMap.get(id).getTitle();
+                    content = imagesMap.get(id).getContent();
+                    break;
+                case "video":
+                    title = videosMap.get(id).getTitle();
+                    content = videosMap.get(id).getContent();
+                    break;
+                default:
+                    title = "null";
+                    content = "null";
+            }
+
+            markerTitleTextView.setText(title);
+            marker.showInfoWindow(); // 显示信息窗口
+            markerTitleTextView.setVisibility(View.VISIBLE); // 显示悬浮窗
+
+            markerDscrpTextView.setText(content);
+            marker.showInfoWindow();
+            markerDscrpTextView.setVisibility(View.VISIBLE);
+
+            return false;
+        });
 
         // 获取UI设置并启用缩放按钮
         UiSettings uiSettings = mMap.getUiSettings();
@@ -217,67 +344,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
 //        addMarkersFromJson("text.json", BitmapDescriptorFactory.HUE_RED);
 //        addMarkersFromJson("image.json", BitmapDescriptorFactory.HUE_BLUE);
 //        addMarkersFromJson("video.json", BitmapDescriptorFactory.HUE_GREEN);
-
-
-    }
-
-    private String readFromFile(File file) {
-        StringBuilder content = new StringBuilder();
-        try {
-            if (!file.exists()) {
-                Log.e("FileRead", "文件不存在: " + file.getAbsolutePath());
-                return "";
-            }
-
-            Log.d("FileRead", "正在读取文件: " + file.getAbsolutePath());
-
-            FileInputStream fis = new FileInputStream(file);
-            InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8);
-            BufferedReader br = new BufferedReader(isr);
-            String line;
-            while ((line = br.readLine()) != null) {
-                content.append(line);
-                Log.d("FileRead", "读取到内容: " + line);
-            }
-            br.close();
-            isr.close();
-            fis.close();
-            Log.d("FileRead", "文件读取完成: " + file.getAbsolutePath());
-        } catch (IOException e) {
-            Log.e("FileRead", "读取文件时发生错误: " + e.getMessage());
-            e.printStackTrace();
-        }
-        Log.d("FileRead", "文件读取完成: " + content.toString());
-        return content.toString();
     }
 
 
-    private void addMarkersFromJson(String fileName, float color) {
-        try {
-            // 获取JSON文件的路径
-            String dirName = "myData";
-            File directory = new File(requireActivity().getExternalFilesDir(null), dirName);
-            File file = new File(directory, fileName);
-            // 读取JSON文件
-            String json = readFromFile(file);
-            JSONObject jsonObject = new JSONObject(json);
-            Iterator<String> keys = jsonObject.keys();
-            while (keys.hasNext()) {
-                String key = keys.next();
-                JSONObject item = jsonObject.getJSONObject(key);
-                double latitude = item.getDouble("latitude");
-                double longitude = item.getDouble("longitude");
-                String title = item.getString("title");
-                Log.d(TAG, "Adding marker: " + title + ", " + latitude + ", " + longitude);
-                mMap.addMarker(new MarkerOptions()
-                        .position(new LatLng(latitude, longitude))
-                        .title(title)
-                        .icon(BitmapDescriptorFactory.defaultMarker(color)));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     @Nullable
     @Override
@@ -291,6 +360,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         markerTitleTextView = view.findViewById(R.id.marker_title);
+        markerDscrpTextView = view.findViewById(R.id.marker_description);
 
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
@@ -298,5 +368,63 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
             mapFragment.getMapAsync(this);
         }
     }
+
+//    private String readFromFile (File file) {
+//        StringBuilder content = new StringBuilder();
+//        try {
+//            if (!file.exists()) {
+//                Log.e("FileRead", "文件不存在: " + file.getAbsolutePath());
+//                return "";
+//            }
+//
+//            Log.d("FileRead", "正在读取文件: " + file.getAbsolutePath());
+//
+//            FileInputStream fis = new FileInputStream(file);
+//            InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8);
+//            BufferedReader br = new BufferedReader(isr);
+//            String line;
+//            while ((line = br.readLine()) != null) {
+//                content.append(line);
+//                Log.d("FileRead", "读取到内容: " + line);
+//            }
+//            br.close();
+//            isr.close();
+//            fis.close();
+//            Log.d("FileRead", "文件读取完成: " + file.getAbsolutePath());
+//        } catch (IOException e) {
+//            Log.e("FileRead", "读取文件时发生错误: " + e.getMessage());
+//            e.printStackTrace();
+//        }
+//        Log.d("FileRead", "文件读取完成: " + content.toString());
+//        return content.toString();
+//    }
+//
+//
+//    private void addMarkersFromJson(String fileName, float color) {
+//        try {
+//            // 获取JSON文件的路径
+//            String dirName = "myData";
+//            File directory = new File(requireActivity().getExternalFilesDir(null), dirName);
+//            File file = new File(directory, fileName);
+//            // 读取JSON文件
+//            String json = readFromFile(file);
+//            JSONObject jsonObject = new JSONObject(json);
+//            Iterator<String> keys = jsonObject.keys();
+//            while (keys.hasNext()) {
+//                String key = keys.next();
+//                JSONObject item = jsonObject.getJSONObject(key);
+//                double latitude = item.getDouble("latitude");
+//                double longitude = item.getDouble("longitude");
+//                String title = item.getString("title");
+//                Log.d(TAG, "Adding marker: " + title + ", " + latitude + ", " + longitude);
+//                mMap.addMarker(new MarkerOptions()
+//                        .position(new LatLng(latitude, longitude))
+//                        .title(title)
+//                        .icon(BitmapDescriptorFactory.defaultMarker(color)));
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 
 }

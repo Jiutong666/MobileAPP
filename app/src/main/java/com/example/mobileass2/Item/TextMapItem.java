@@ -1,6 +1,7 @@
 package com.example.mobileass2.Item;
 
-public class TextIMaptem implements Item{
+public class TextMapItem implements Item{
+
     private String content;
     private double latitude;
     private double longitude;
@@ -8,7 +9,7 @@ public class TextIMaptem implements Item{
     private String userEmail;
 
     // Constructor
-    public TextIMaptem(String content, double latitude, double longitude, String title, String userEmail) {
+    public TextMapItem(String content, double latitude, double longitude, String title, String userEmail) {
         this.content = content;
         this.latitude = latitude;
         this.longitude = longitude;
@@ -50,3 +51,4 @@ public class TextIMaptem implements Item{
         return userEmail;
     }
 }
+

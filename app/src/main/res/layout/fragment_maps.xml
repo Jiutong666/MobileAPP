@@ -25,8 +25,15 @@
         <!-- 在这里添加你的悬浮窗内容 -->
         <TextView
             android:id="@+id/marker_title"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text=""/>
+
+        <TextView
+            android:id="@+id/marker_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text=""/>
+
     </LinearLayout>
 </RelativeLayout>
