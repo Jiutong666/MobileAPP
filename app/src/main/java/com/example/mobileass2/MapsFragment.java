@@ -7,6 +7,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -14,6 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -54,6 +56,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
     private TextView markerTitleTextView;
     private TextView markerDscrpTextView;
     private TextView markerDistanceView;
+    private Button showDetail;
 
     private HashMap<String, MapItem> textsMap = new HashMap<>(); // 用来存储Text对象的HashMap
     private HashMap<String, MapItem> imagesMap = new HashMap<>();
@@ -65,6 +68,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
     private FusedLocationProviderClient fusedLocationClient;
     private Location currentLocation;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+
+    private String idToTrans;
+    private String typeToTrans;
 
     // 第一次从数据库读取全部数据
     public void writeInItem(QueryDocumentSnapshot document, String itemType) {
@@ -327,6 +333,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
             String title;
             String content;
             String id = (String) marker.getTag();
+            idToTrans = (String) marker.getTag();
+            typeToTrans = marker.getTitle();
 
             switch (markerType) {
                 case "text":
@@ -458,6 +466,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
 
         // 初始化你之前定义的视图...
         floatingWindow = view.findViewById(R.id.floating_window);
+        showDetail = view.findViewById(R.id.right_icon);
         // 设置关闭按钮
         ImageButton closeButton = view.findViewById(R.id.close_button);
         closeButton.setOnClickListener(new View.OnClickListener() {
@@ -467,7 +476,29 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
                 floatingWindow.setVisibility(View.GONE);
             }
         });
+        showDetail.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
+                switch (typeToTrans){
+                    case "text":
+                        String packageId = idToTrans; // Send the ID to MainActivity and start it
+                        Intent intent = new Intent(getActivity(), DisplayTextActivity.class);
+                        intent.putExtra("PACKAGE_ID", packageId); // Pass the ID as an extra
+                        startActivity(intent);
+                        break;
+
+                    case "image":
+
+                        break;
+
+                    case "video":
+
+                        break;
+                }
+
+            }
+        });
     }
 
 
