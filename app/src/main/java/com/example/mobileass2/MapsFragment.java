@@ -105,7 +105,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
                                 Log.d(TAG1, "Key: " + entry.getKey() + " Value: " + entry.getValue().toString());
                             }
 
-                            addMarkersToMap(textsMap);
+//                            addMarkersToMap(textsMap);
                         } else {
                             Log.w(TAG1, "Error getting documents.", task.getException());
                         }
@@ -126,7 +126,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
                                 Log.d(TAG1, "Key: " + entry.getKey() + " Value: " + entry.getValue().toString());
                             }
 
-                            addMarkersToMap(imagesMap);
+//                            addMarkersToMap(imagesMap);
 
                         } else {
                             Log.w(TAG1, "Error getting documents.", task.getException());
@@ -149,7 +149,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
                                 Log.d(TAG1, "Key: " + entry.getKey() + " Value: " + entry.getValue().toString());
                             }
 
-                            addMarkersToMap(videosMap);
+//                            addMarkersToMap(videosMap);
                         } else {
                             Log.w(TAG1, "Error getting documents.", task.getException());
                         }
@@ -209,7 +209,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
             switch (dc.getType()) {
                 case ADDED:
                 case MODIFIED:
+
                     writeInItem(document, type);
+                    if (type.equals("video")){
+                        Log.d("monitorChange", videosMap.get(document.getId()).toString());
+                    }
                     break;
                 case REMOVED:
                     removeItem(document.getId(), type);
@@ -313,6 +317,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
         uiSettings.setZoomControlsEnabled(true);
 
         readItem();
+        mapRender();
 
         Log.d("textIfThere", "program has been here");
 
