@@ -2,9 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-<<<<<<< Updated upstream
-    <uses-permission android:name="android.permission.INTERNET" />
-=======
+
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
@@ -15,7 +13,9 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
->>>>>>> Stashed changes
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -49,6 +49,14 @@
 
         <activity
             android:name=".LoginActivity"
+            android:exported="false" />
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${MAPS_API_KEY}" />
+
+        <activity
+            android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -56,10 +64,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity android:name=".MainActivity" />
         <activity android:name=".RegisterActivity" />
-<<<<<<< Updated upstream
-=======
+
         <activity android:name=".DropTextActivity" />
         <activity android:name=".DropPictureActivity" />
         <activity android:name=".DropVideoActivity" />
@@ -67,7 +75,7 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyBaYk39oS5iAGIp8O8S8kr4c-6tTrC5k7M" />
->>>>>>> Stashed changes
+
     </application>
 
 </manifest>
