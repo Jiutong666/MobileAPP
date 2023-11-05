@@ -42,6 +42,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
     private GoogleMap mMap;
     private TextView markerTitleTextView;
     private TextView markerDscrpTextView;
+    private TextView markerDistanceView;
 
     private HashMap<String, MapItem> textsMap = new HashMap<>(); // 用来存储Text对象的HashMap
     private HashMap<String, MapItem> imagesMap = new HashMap<>();
@@ -49,6 +50,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
 
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private RelativeLayout floatingWindow;
+
+    private FusedLocationProviderClient fusedLocationClient;
 
     // 第一次从数据库读取全部数据
     public void writeInItem(QueryDocumentSnapshot document, String itemType) {
@@ -145,26 +148,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
 
                             addMarkersToMap(videosMap);
 
-                            // 打印获取到的数据到日志，用于调试
-//                            for (HashMap.Entry<String, VideoItem> entry : videosMap.entrySet()) {
-//                                Log.d(TAG1, "Key: " + entry.getKey() + " Value: " + entry.getValue().toString());
-//
-//                                String id = entry.getKey(); // The ID from your map entry
-//                                Item item = entry.getValue();
-//                                LatLng position = new LatLng(item.getLatitude(), item.getLongitude());
-//
-//                                // Add a marker to the map with the position and title from the Item
-//                                Marker marker = mMap.addMarker(new MarkerOptions()
-//                                        .position(position)
-//                                        .title(item.getTitle())
-//                                );
-//
-//                                marker.setTag(id);
-//
-//                                Log.d("addMarkersToMap", "Marker added with ID: " + id + " at position: " + position);
-//
-//
-//                            }
                         } else {
                             Log.w(TAG1, "Error getting documents.", task.getException());
                         }
@@ -261,22 +244,44 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
             String id = entry.getKey(); // The ID from your map entry
             MapItem item = entry.getValue();
             LatLng position = new LatLng(item.getLatitude(), item.getLongitude());
+            Marker marker = null;
 
-            // Add a marker to the map with the position and title from the Item
-            Marker marker = mMap.addMarker(new MarkerOptions()
-                            .position(position)
-                            .title(item.getType())
-                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.video))// 设置自定义图标
-                    // Here you can add more customization to your marker
-            );
+            if ("text".equals(item.getType())) {
+                // Add a marker to the map with the position and title from the Item
+                marker = mMap.addMarker(new MarkerOptions()
+                                .position(position)
+                                .title(item.getType())
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.text))
+                        // Here you can add more customization to your marker
+                );
+            } else if ("image".equals(item.getType())) {
+                // Add a marker to the map with the position and title from the Item
+                marker = mMap.addMarker(new MarkerOptions()
+                                .position(position)
+                                .title(item.getType())
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.image))
+                        // Here you can add more customization to your marker
+                );
+            } else if ("video".equals(item.getType())) {
+                // Add a marker to the map with the position and title from the Item
+                marker = mMap.addMarker(new MarkerOptions()
+                                .position(position)
+                                .title(item.getType())
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.video))
+                        // Here you can add more customization to your marker
+                );
+            } else {
+                // If none of the types match, you may want to handle it or continue
+                continue;
+            }
 
-            // Set the ID as the tag for the marker
-            marker.setTag(id);
-
-            Log.d("addMarkersToMap", "Marker added with ID: " + id + " at position: " + position);
-
+            if (marker != null) {
+                marker.setTag(id);
+                Log.d("addMarkersToMap", "Marker added with ID: " + id + " at position: " + position);
+            }
         }
     }
+
 
     private void updateAllMarkers() {
         // Clear existing markers if necessary
@@ -288,7 +293,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
         addMarkersToMap(videosMap); // Add video item markers
     }
 
-    @Override
+/*    @Override
     public void onMapReady(GoogleMap googleMap) {
 
         Log.d(TAG, "Map is ready");
@@ -296,6 +301,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
         LatLng sydney = new LatLng(37.4219983, -122.084);
         float zoomLevel = 10.0f; // 设置缩放级别为15
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, zoomLevel));
+
         mMap.setOnMarkerClickListener(marker -> {
             // 每当marker被点击时，检查并更新浮动窗口的可见性
             if (floatingWindow.getVisibility() == View.GONE) {
@@ -343,6 +349,77 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
         readItem();
         updateAllMarkers();
 
+    }*/
+
+    public void onMapReady(GoogleMap googleMap) {
+
+        Log.d(TAG, "Map is ready");
+        mMap = googleMap;
+        LatLng sydney = new LatLng(37.4219983, -122.084);
+        float zoomLevel = 10.0f; // 设置缩放级别为15
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, zoomLevel));
+
+        mMap.setOnMarkerClickListener(marker -> {
+            // 每当marker被点击时，检查并更新浮动窗口的可见性
+            if (floatingWindow.getVisibility() == View.GONE) {
+                floatingWindow.setVisibility(View.VISIBLE); // 如果之前是隐藏的，现在显示它
+            }
+
+            String markerType = marker.getTitle();
+            String title;
+            String content;
+            String id = (String) marker.getTag();
+            double latitude;
+            double longitude;
+
+            switch (markerType) {
+                case "text":
+                    title = textsMap.get(id).getTitle();
+                    content = textsMap.get(id).getContent();
+                    latitude = textsMap.get(id).getLatitude();
+                    longitude = textsMap.get(id).getLongitude();
+                    break;
+                case "image":
+                    title = imagesMap.get(id).getTitle();
+                    content = imagesMap.get(id).getContent();
+                    latitude = textsMap.get(id).getLatitude();
+                    longitude = textsMap.get(id).getLongitude();
+                    break;
+                case "video":
+                    title = videosMap.get(id).getTitle();
+                    content = videosMap.get(id).getContent();
+                    latitude = textsMap.get(id).getLatitude();
+                    longitude = textsMap.get(id).getLongitude();
+                    break;
+                default:
+                    title = "null";
+                    content = "null";
+            }
+
+
+
+            markerTitleTextView.setText(title);
+            marker.showInfoWindow(); // 显示信息窗口
+            markerTitleTextView.setVisibility(View.VISIBLE); // 显示悬浮窗
+
+            markerDscrpTextView.setText(content);
+            marker.showInfoWindow();
+            markerDscrpTextView.setVisibility(View.VISIBLE);
+
+            markerDistanceView.setText(distance);
+            marker.showInfoWindow(); // 显示信息窗口
+            markerDistanceView.setVisibility(View.VISIBLE); // 显示悬浮窗
+
+            return false;
+        });
+
+        // 获取UI设置并启用缩放按钮
+        UiSettings uiSettings = mMap.getUiSettings();
+        uiSettings.setZoomControlsEnabled(true);
+
+        readItem();
+        updateAllMarkers();
+
     }
 
 
@@ -360,6 +437,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
         super.onViewCreated(view, savedInstanceState);
         markerTitleTextView = view.findViewById(R.id.marker_title);
         markerDscrpTextView = view.findViewById(R.id.marker_description);
+        markerDistanceView = view.findViewById(R.id.distance_text);
 
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
@@ -381,62 +459,5 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
 
     }
 
-//    private String readFromFile (File file) {
-//        StringBuilder content = new StringBuilder();
-//        try {
-//            if (!file.exists()) {
-//                Log.e("FileRead", "文件不存在: " + file.getAbsolutePath());
-//                return "";
-//            }
-//
-//            Log.d("FileRead", "正在读取文件: " + file.getAbsolutePath());
-//
-//            FileInputStream fis = new FileInputStream(file);
-//            InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8);
-//            BufferedReader br = new BufferedReader(isr);
-//            String line;
-//            while ((line = br.readLine()) != null) {
-//                content.append(line);
-//                Log.d("FileRead", "读取到内容: " + line);
-//            }
-//            br.close();
-//            isr.close();
-//            fis.close();
-//            Log.d("FileRead", "文件读取完成: " + file.getAbsolutePath());
-//        } catch (IOException e) {
-//            Log.e("FileRead", "读取文件时发生错误: " + e.getMessage());
-//            e.printStackTrace();
-//        }
-//        Log.d("FileRead", "文件读取完成: " + content.toString());
-//        return content.toString();
-//    }
-//
-//
-//    private void addMarkersFromJson(String fileName, float color) {
-//        try {
-//            // 获取JSON文件的路径
-//            String dirName = "myData";
-//            File directory = new File(requireActivity().getExternalFilesDir(null), dirName);
-//            File file = new File(directory, fileName);
-//            // 读取JSON文件
-//            String json = readFromFile(file);
-//            JSONObject jsonObject = new JSONObject(json);
-//            Iterator<String> keys = jsonObject.keys();
-//            while (keys.hasNext()) {
-//                String key = keys.next();
-//                JSONObject item = jsonObject.getJSONObject(key);
-//                double latitude = item.getDouble("latitude");
-//                double longitude = item.getDouble("longitude");
-//                String title = item.getString("title");
-//                Log.d(TAG, "Adding marker: " + title + ", " + latitude + ", " + longitude);
-//                mMap.addMarker(new MarkerOptions()
-//                        .position(new LatLng(latitude, longitude))
-//                        .title(title)
-//                        .icon(BitmapDescriptorFactory.defaultMarker(color)));
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
 
 }
