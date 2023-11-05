@@ -257,12 +257,13 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
     }
 
     public void mapRender() {
-        mMap.clear();
-        addMarkersToMap(textsMap); // Add text item markers
-        addMarkersToMap(imagesMap); // Add image item markers
-        addMarkersToMap(videosMap); // Add video item markers
+        if (mMap != null) {
+            mMap.clear();
+            addMarkersToMap(textsMap); // Add text item markers
+            addMarkersToMap(imagesMap); // Add image item markers
+            addMarkersToMap(videosMap); // Add video item markers
+        }
     }
-
 
     private void addMarkersToMap(HashMap<String, MapItem> itemsMap) {
         for (HashMap.Entry<String, MapItem> entry : itemsMap.entrySet()) {
