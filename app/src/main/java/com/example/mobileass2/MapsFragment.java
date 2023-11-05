@@ -276,7 +276,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
                 marker = mMap.addMarker(new MarkerOptions()
                                 .position(position)
                                 .title(item.getType())
-                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.text))
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.text4))
                         // Here you can add more customization to your marker
                 );
             } else if ("image".equals(item.getType())) {
@@ -284,7 +284,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
                 marker = mMap.addMarker(new MarkerOptions()
                                 .position(position)
                                 .title(item.getType())
-                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.image))
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.image4))
                         // Here you can add more customization to your marker
                 );
             } else if ("video".equals(item.getType())) {
