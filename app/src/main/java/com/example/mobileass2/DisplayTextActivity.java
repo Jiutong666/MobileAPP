@@ -1,9 +1,12 @@
 package com.example.mobileass2;
 
+import static android.content.ContentValues.TAG;
+
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -48,11 +51,11 @@ public class DisplayTextActivity extends AppCompatActivity implements OnMapReady
     private List<Comment> commentsList = new ArrayList<>();
     private FirebaseFirestore fireStore;
     private FirebaseAuth auth;
-
     private String packageId; // each package content has a unique ID
+    private String user;
     private DocumentReference textRef;
     private boolean isLikedByCurrentUser; //track if a user liked a post
-    private int likes;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -147,8 +150,8 @@ public class DisplayTextActivity extends AppCompatActivity implements OnMapReady
             String content = document.getString("content");
             double latitude = document.getDouble("latitude");
             double longitude = document.getDouble("longitude");
-            String userEmail = document.getString("userEmail");
-            this.likes = document.getDouble("likes").intValue();
+            String userId = auth.getCurrentUser().getUid();
+            fetchUsername(userId);
             textContent.setText(title + "\n" + content);
 
             if (googleMap != null) {
@@ -159,7 +162,7 @@ public class DisplayTextActivity extends AppCompatActivity implements OnMapReady
                 googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15));
             }
 
-            userName.setText(userEmail);
+            userName.setText(user);
             // Fetch user details, likes, and comments...
         }
     });
@@ -179,9 +182,21 @@ public class DisplayTextActivity extends AppCompatActivity implements OnMapReady
 //        fetchCommentsFromFirebase();
     }
 
-//    private String fetchUsernameFromFirebase(){
-//        fireStore.collection("users")
-//    }
+    private void fetchUsername(String userId) {
+        fireStore.collection("users").document(userId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists() && documentSnapshot.contains("username")) {
+                        user = documentSnapshot.getString("username");
+                    } else {
+                        Toast.makeText(this, "Error fetching username", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "User not exist.", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+
 
     private void fetchCommentsFromFirebase() {
         fireStore.collection("comments")
@@ -223,6 +238,7 @@ public class DisplayTextActivity extends AppCompatActivity implements OnMapReady
 
     private void toggleLikeStatus() {
         String userId = auth.getCurrentUser().getUid();
+
         if (isLikedByCurrentUser) {
             // Remove the like from Firestore
             fireStore.collection("likes")

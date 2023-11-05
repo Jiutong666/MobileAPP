@@ -47,10 +47,8 @@ public class DropTextActivity extends AppCompatActivity implements OnMapReadyCal
     private FusedLocationProviderClient fusedLocationClient;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private TextInputEditText  contentEditText;
-
     private EditText titleEditText;
     private Button showLocationButton;
-
     private TextView textView;
 
     private FirebaseFirestore fireStore;
