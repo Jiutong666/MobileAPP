@@ -5,6 +5,7 @@ import static android.content.ContentValues.TAG;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -116,11 +117,14 @@ public class DisplayTextActivity extends AppCompatActivity implements OnMapReady
         buttonHome.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /** need to finish!!!!!!
-                 *  Navigate to the home activity (or main dashboard)
-                // Intent intent = new Intent(PackageDisplayActivity.this, HomeActivity.class);
-                // startActivity(intent);
-                // finish();*/
+                Intent intent = new Intent(DisplayTextActivity.this, MainActivity.class);
+
+                // Clear all the activities on top of the main activity and create a new task
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+
+                // Close the current activity after starting the main activity
+                finish();
             }
         });
 

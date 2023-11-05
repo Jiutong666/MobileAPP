@@ -16,7 +16,7 @@ public class MapItem {
 
 
     // Constructor
-    public MapItem(String type, String content, double latitude, double longitude, String title, String userEmail) {
+    public MapItem(String type, String content, double latitude, double longitude, String title, String userEmail, int likes) {
         this.type = type;
         this.content = content;
 //        switch (type) {
@@ -33,6 +33,7 @@ public class MapItem {
         this.longitude = longitude;
         this.title = title;
         this.userEmail = userEmail;
+        this.likeNo = likes;
     }
 
     @Override
@@ -94,5 +95,9 @@ public class MapItem {
 
     public String getUserEmail() {
         return userEmail;
+    }
+
+    public int getLikeNo() {
+        return likeNo;
     }
 }

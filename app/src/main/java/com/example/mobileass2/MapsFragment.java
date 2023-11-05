@@ -2,7 +2,6 @@ package com.example.mobileass2;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
@@ -56,6 +55,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
     private TextView markerTitleTextView;
     private TextView markerDscrpTextView;
     private TextView markerDistanceView;
+
+    private TextView likesNum;
     private Button showDetail;
 
     private HashMap<String, MapItem> textsMap = new HashMap<>(); // 用来存储Text对象的HashMap
@@ -82,7 +83,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
                         document.getDouble("latitude"),
                         document.getDouble("longitude"),
                         document.getString("title"),
-                        document.getString("userEmail")
+                        document.getString("userEmail"),
+                        document.getDouble("likes").intValue()
                 );
                 // 将Text对象添加到HashMap中，以document的ID为键
                 textsMap.put(document.getId(), textMapItem);
@@ -95,8 +97,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
                         document.getDouble("latitude"),
                         document.getDouble("longitude"),
                         document.getString("title"),
-                        document.getString("userEmail")
-                );
+                        document.getString("userEmail"),
+                        document.getDouble("likes").intValue());
                 imagesMap.put(document.getId(), imageItem);
                 break;
 
@@ -107,8 +109,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
                         document.getDouble("latitude"),
                         document.getDouble("longitude"),
                         document.getString("title"),
-                        document.getString("userEmail")
-                );
+                        document.getString("userEmail"),
+                        document.getDouble("likes").intValue());
                 videosMap.put(document.getId(), videoItem);
                 break;
         }
@@ -331,6 +333,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
             String markerType = marker.getTitle();
             String title;
             String content;
+            String likes;
             String id = (String) marker.getTag();
             idToTrans = (String) marker.getTag();
             typeToTrans = marker.getTitle();
@@ -339,18 +342,22 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
                 case "text":
                     title = textsMap.get(id).getTitle();
                     content = textsMap.get(id).getContent();
+                    likes = String.valueOf(textsMap.get(id).getLikeNo());
                     break;
                 case "image":
                     title = imagesMap.get(id).getTitle();
                     content = imagesMap.get(id).getContent();
+                    likes = String.valueOf(imagesMap.get(id).getLikeNo());
                     break;
                 case "video":
                     title = videosMap.get(id).getTitle();
                     content = videosMap.get(id).getContent();
+                    likes = String.valueOf(videosMap.get(id).getLikeNo());
                     break;
                 default:
                     title = "null";
                     content = "null";
+                    likes = "0";
             }
 
             // 确保你在类中已经定义了currentLocation
@@ -381,7 +388,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
             markerDscrpTextView.setText(content);
             marker.showInfoWindow();
             markerDscrpTextView.setVisibility(View.VISIBLE);
-
+            likesNum.setText(likes);
             return false;
         });
 
@@ -448,6 +455,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
         markerTitleTextView = view.findViewById(R.id.marker_title);
         markerDscrpTextView = view.findViewById(R.id.marker_description);
         markerDistanceView = view.findViewById(R.id.distance_text);
+        likesNum = view.findViewById(R.id.likes);
 
         // 请确保getActivity()不会返回null
         Context context = getActivity();
@@ -488,14 +496,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
                         break;
 
                     case "image":
-
                         break;
 
                     case "video":
-
                         break;
                 }
-
             }
         });
     }

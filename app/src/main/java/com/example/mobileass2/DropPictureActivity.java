@@ -174,6 +174,7 @@ public class DropPictureActivity extends AppCompatActivity implements OnMapReady
                         docData.put("latitude", latitude);
                         docData.put("longitude", longitude);
                         docData.put("userEmail", userEmail);
+                        docData.put("likes", 0);
 
                         // Save to Firestore
                         fireStore.collection("images").document().set(docData)

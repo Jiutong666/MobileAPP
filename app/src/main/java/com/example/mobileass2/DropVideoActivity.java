@@ -152,6 +152,7 @@ public class DropVideoActivity extends AppCompatActivity implements OnMapReadyCa
                     docData.put("latitude", latitude);
                     docData.put("longitude", longitude);
                     docData.put("userEmail", userEmail);
+                    docData.put("likes", 0);
 
                     // Save to Firestore
                     fireStore.collection("videos").document().set(docData)
