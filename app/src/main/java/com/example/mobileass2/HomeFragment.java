@@ -7,6 +7,12 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.content.Intent;
+import android.view.animation.AnimationUtils;
+import android.widget.Button;
+import android.widget.LinearLayout;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -59,6 +65,42 @@ public class HomeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false);
+        View view = inflater.inflate(R.layout.fragment_home, container, false);
+
+        Button shareTextButton = view.findViewById(R.id.shareTextButton);
+        shareTextButton.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), DropTextActivity.class);
+            startActivity(intent);
+        });
+
+        Button sharePictureButton = view.findViewById(R.id.sharePictureButton);
+        sharePictureButton.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), DropPictureActivity.class);
+            startActivity(intent);
+        });
+
+        Button shareVideoButton = view.findViewById(R.id.shareVideoButton);
+        shareVideoButton.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), DropVideoActivity.class);
+            startActivity(intent);
+        });
+
+
+        // Find the FloatingActionButton and ButtonContainer
+        FloatingActionButton fabAdd = view.findViewById(R.id.fabAdd);
+        LinearLayout buttonContainer = view.findViewById(R.id.buttonContainer);
+
+        fabAdd.setOnClickListener(v -> {
+            if (buttonContainer.getVisibility() == View.GONE) {
+                buttonContainer.setVisibility(View.VISIBLE);
+                buttonContainer.startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.slide_up));
+            } else {
+                buttonContainer.startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.slide_down));
+                buttonContainer.postOnAnimation(() -> buttonContainer.setVisibility(View.GONE));
+            }
+        });
+
+        return view;
     }
+
 }
