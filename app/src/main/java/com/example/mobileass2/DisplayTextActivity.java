@@ -52,7 +52,6 @@ public class DisplayTextActivity extends AppCompatActivity implements OnMapReady
     private FirebaseFirestore fireStore;
     private FirebaseAuth auth;
     private String packageId; // each package content has a unique ID
-    private String user;
     private DocumentReference textRef;
     private boolean isLikedByCurrentUser; //track if a user liked a post
 
@@ -87,9 +86,6 @@ public class DisplayTextActivity extends AppCompatActivity implements OnMapReady
         LinearLayoutManager l = new LinearLayoutManager(this);
         l.setStackFromEnd(true);
         commentsRecyclerView.setLayoutManager(l);
-
-        Comment c = new Comment("mock user", "no", Timestamp.now());
-        commentsList.add(c);
 
         // Initialize the adapter and set it to the RecyclerView
         commentsAdapter = new CommentsAdapter(this, commentsList);
@@ -133,6 +129,7 @@ public class DisplayTextActivity extends AppCompatActivity implements OnMapReady
     protected void onStart() {
         super.onStart();
         fetchDataFromFirebase();
+        fetchCommentsFromFirebase();
     }
 
     private void fetchDataFromFirebase() {
@@ -151,7 +148,6 @@ public class DisplayTextActivity extends AppCompatActivity implements OnMapReady
             double latitude = document.getDouble("latitude");
             double longitude = document.getDouble("longitude");
             String userId = auth.getCurrentUser().getUid();
-            fetchUsername(userId);
             textContent.setText(title + "\n" + content);
 
             if (googleMap != null) {
@@ -162,11 +158,23 @@ public class DisplayTextActivity extends AppCompatActivity implements OnMapReady
                 googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15));
             }
 
-            userName.setText(user);
-            // Fetch user details, likes, and comments...
+            // Fetch the username from the firebase
+            fetchUsername(userId, new UsernameCallback() {
+                @Override
+                public void onCallback(String username) {
+                    // Use the username here
+                    String user = username;
+                    userName.setText(user);
+                }
+
+                @Override
+                public void onError(String error) {
+                    // Handle the error here
+                    System.out.println("Error: " + error);
+                }
+            });
         }
     });
-
         // Determine if the current user has liked this post...
         fireStore.collection("likes")
                 .whereEqualTo("userId", auth.getCurrentUser().getUid())
@@ -182,21 +190,20 @@ public class DisplayTextActivity extends AppCompatActivity implements OnMapReady
 //        fetchCommentsFromFirebase();
     }
 
-    private void fetchUsername(String userId) {
+    private void fetchUsername(String userId, UsernameCallback callback) {
         fireStore.collection("users").document(userId).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists() && documentSnapshot.contains("username")) {
-                        user = documentSnapshot.getString("username");
+                        String name = documentSnapshot.getString("username");
+                        callback.onCallback(name); // Use the callback to return the name
                     } else {
-                        Toast.makeText(this, "Error fetching username", Toast.LENGTH_SHORT).show();
+                        callback.onError("Error fetching username");
                     }
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(this, "User not exist.", Toast.LENGTH_SHORT).show();
+                    callback.onError("User not exist.");
                 });
     }
-
-
 
     private void fetchCommentsFromFirebase() {
         fireStore.collection("comments")
@@ -211,10 +218,18 @@ public class DisplayTextActivity extends AppCompatActivity implements OnMapReady
                             String content = document.getString("textContent");
                             Timestamp timestamp = document.getTimestamp("timestamp");
 
-                            // Get username from database; /************************/
-
-                            Comment comment = new Comment(userId, content, timestamp);
-                            commentsList.add(comment);
+                            // Get username from database;
+                            fetchUsername(userId, new UsernameCallback() {
+                                @Override
+                                public void onCallback(String username) {
+                                    Comment comment = new Comment(username, content, timestamp);
+                                    commentsList.add(comment);
+                                }
+                                @Override
+                                public void onError(String error) {
+                                    System.out.println("Error: " + error);
+                                }
+                            });
                         }
                         commentsAdapter.notifyDataSetChanged();
 
