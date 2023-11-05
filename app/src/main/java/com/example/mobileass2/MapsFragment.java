@@ -2,8 +2,13 @@ package com.example.mobileass2;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,6 +19,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.mobileass2.Item.MapItem;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -34,6 +41,10 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+
+import android.Manifest;
+
 
 
 public class MapsFragment extends Fragment implements OnMapReadyCallback{
@@ -52,6 +63,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
     private RelativeLayout floatingWindow;
 
     private FusedLocationProviderClient fusedLocationClient;
+    private Location currentLocation;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
     // 第一次从数据库读取全部数据
     public void writeInItem(QueryDocumentSnapshot document, String itemType) {
@@ -369,33 +382,44 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
             String title;
             String content;
             String id = (String) marker.getTag();
-            double latitude;
-            double longitude;
 
             switch (markerType) {
                 case "text":
                     title = textsMap.get(id).getTitle();
                     content = textsMap.get(id).getContent();
-                    latitude = textsMap.get(id).getLatitude();
-                    longitude = textsMap.get(id).getLongitude();
                     break;
                 case "image":
                     title = imagesMap.get(id).getTitle();
                     content = imagesMap.get(id).getContent();
-                    latitude = textsMap.get(id).getLatitude();
-                    longitude = textsMap.get(id).getLongitude();
                     break;
                 case "video":
                     title = videosMap.get(id).getTitle();
                     content = videosMap.get(id).getContent();
-                    latitude = textsMap.get(id).getLatitude();
-                    longitude = textsMap.get(id).getLongitude();
                     break;
                 default:
                     title = "null";
                     content = "null";
             }
 
+            // 确保你在类中已经定义了currentLocation
+            if (currentLocation != null) {
+                Log.d("currentLocation", "onMarkerClick: Current location is not null" + currentLocation);
+                double endLatitude = marker.getPosition().latitude;
+                double endLongitude = marker.getPosition().longitude;
+                float[] results = new float[1];
+                Location.distanceBetween(currentLocation.getLatitude(), currentLocation.getLongitude(), endLatitude, endLongitude, results);
+                float distanceInMeters = results[0];
+                float distanceInKilometers = distanceInMeters / 1000;
+                String distanceText = String.format(Locale.getDefault(), "%.2f km", distanceInKilometers);
+                markerDistanceView.setText(distanceText);
+                marker.showInfoWindow(); // 显示信息窗口
+                markerDistanceView.setVisibility(View.VISIBLE); // 显示悬浮窗
+            } else {
+                Log.d("currentLocation", "onMarkerClick: Current location is null");
+                markerDistanceView.setText("--");
+                marker.showInfoWindow(); // 显示信息窗口
+                markerDistanceView.setVisibility(View.VISIBLE); // 显示悬浮窗
+            }
 
 
             markerTitleTextView.setText(title);
@@ -405,10 +429,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
             markerDscrpTextView.setText(content);
             marker.showInfoWindow();
             markerDscrpTextView.setVisibility(View.VISIBLE);
-
-            markerDistanceView.setText(distance);
-            marker.showInfoWindow(); // 显示信息窗口
-            markerDistanceView.setVisibility(View.VISIBLE); // 显示悬浮窗
 
             return false;
         });
@@ -422,6 +442,41 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
 
     }
 
+    private void getCurrentLocation() {
+        if (getContext() == null) return; // 在 Fragment 中，getContext() 可能会返回 null
+
+        if ((ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) && (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)) {
+            // 请求位置权限
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+            return;
+        }
+
+        FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(location -> { // 这里不需要this作为上下文
+                    if (location != null) {
+                        // 使用当前位置
+                        currentLocation = location;
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.d(TAG, "Error trying to get last GPS location");
+                    e.printStackTrace();
+                });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // 权限被授予，再次调用 getCurrentLocation
+                getCurrentLocation();
+            } else {
+                // 权限被拒绝，向用户解释为何需要权限
+            }
+        }
+    }
 
 
     @Nullable
@@ -438,6 +493,14 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
         markerTitleTextView = view.findViewById(R.id.marker_title);
         markerDscrpTextView = view.findViewById(R.id.marker_description);
         markerDistanceView = view.findViewById(R.id.distance_text);
+
+        // 请确保getActivity()不会返回null
+        Context context = getActivity();
+        if (context != null) {
+            fusedLocationClient = LocationServices.getFusedLocationProviderClient(context);
+            getCurrentLocation(); // 获取当前位置
+        }
+
 
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
