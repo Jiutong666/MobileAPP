@@ -277,40 +277,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
         float zoomLevel = 10.0f; // 设置缩放级别为15
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, zoomLevel));
 
-        mMap.setOnMarkerClickListener(marker -> {
-            String markerType = marker.getTitle();
-            String title;
-            String content;
-            String id = (String) marker.getTag();
-
-            switch (markerType) {
-                case "text":
-                    title = textsMap.get(id).getTitle();
-                    content = textsMap.get(id).getContent();
-                    break;
-                case "image":
-                    title = imagesMap.get(id).getTitle();
-                    content = imagesMap.get(id).getContent();
-                    break;
-                case "video":
-                    title = videosMap.get(id).getTitle();
-                    content = videosMap.get(id).getContent();
-                    break;
-                default:
-                    title = "null";
-                    content = "null";
-            }
-
-            markerTitleTextView.setText(title);
-            marker.showInfoWindow(); // 显示信息窗口
-            markerTitleTextView.setVisibility(View.VISIBLE); // 显示悬浮窗
-
-            markerDscrpTextView.setText(content);
-            marker.showInfoWindow();
-            markerDscrpTextView.setVisibility(View.VISIBLE);
-
-            return false;
-        });
 
         // 获取UI设置并启用缩放按钮
         UiSettings uiSettings = mMap.getUiSettings();
