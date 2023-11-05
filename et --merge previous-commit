@@ -1,0 +1,148 @@
+[33mcommit dc4fa60bed9c1a615fc3fe26d5f1cb67accabf6a[m[33m ([m[1;36mHEAD -> [m[1;32mLin[m[33m, [m[1;31morigin/Lin[m[33m)[m
+Merge: 34f20e8 539aafe
+Author: JanZhang666 <87907679+JanZhang666@users.noreply.github.com>
+Date:   Sun Nov 5 15:38:05 2023 +1100
+
+    Merge pull request #1 from Jiutong666/Jade
+    
+    Jade
+
+[33mcommit 539aafe26f94ca34652523332410a5cf0167383c[m
+Merge: cb597d9 34f20e8
+Author: JanZhang666 <87907679+JanZhang666@users.noreply.github.com>
+Date:   Sun Nov 5 15:37:58 2023 +1100
+
+    Merge branch 'Lin' into Jade
+
+[33mcommit 34f20e8e4292d042297d698c4dee4bdbcaea5b85[m
+Author: ChloeD-L <linduan1018@gmail.com>
+Date:   Sun Nov 5 15:12:36 2023 +1100
+
+    HashMap map rendering success & real time update success
+
+[33mcommit b0ac1aaabf600f4b2535244a4d24e998c5743508[m
+Author: ChloeD-L <linduan1018@gmail.com>
+Date:   Sun Nov 5 14:21:35 2023 +1100
+
+    HashMap map rendering success & real time update try fix1
+
+[33mcommit 64dd4e14977fc12949ce325e282b18302ed817aa[m
+Author: ChloeD-L <linduan1018@gmail.com>
+Date:   Sat Nov 4 22:15:41 2023 +1100
+
+    HashMap map rendering success & real time update unfixed
+
+[33mcommit 0b84e56056d038ce2736372c4ca1a7731773eb59[m
+Author: ChloeD-L <linduan1018@gmail.com>
+Date:   Sat Nov 4 12:47:51 2023 +1100
+
+    map render hashmap try1
+
+[33mcommit 2f22a10ce45d03f0f644b80d91870695b11bb153[m
+Author: ChloeD-L <linduan1018@gmail.com>
+Date:   Thu Nov 2 23:28:16 2023 +1100
+
+    map render json draft success
+
+[33mcommit a887aa9cbd6b25f0687fa442a3e0a8640b96b6a4[m
+Author: ChloeD-L <linduan1018@gmail.com>
+Date:   Thu Nov 2 14:24:10 2023 +1100
+
+    Map render try1
+
+[33mcommit 12b736daec1afb3e56fa4bead8f3f8dc34bdfcee[m
+Author: ChloeD-L <linduan1018@gmail.com>
+Date:   Wed Nov 1 17:23:19 2023 +1100
+
+    Json permission environment added
+
+[33mcommit cb597d9a8e36f9378b26c7f29cc917479e4f882b[m
+Author: Xi3xi <18651622081@163.com>
+Date:   Sat Oct 28 01:33:04 2023 +1100
+
+    Feature: add display text UI
+
+[33mcommit d55cb5659523765ab7c6d089f9349720cfa7e7ee[m
+Author: ChloeD-L <linduan1018@gmail.com>
+Date:   Wed Oct 11 13:34:36 2023 +1100
+
+    Map data fetch try
+
+[33mcommit 3e94dcef815c4e9ed52411a7562fe1180a1d3b40[m
+Author: ChloeD-L <linduan1018@gmail.com>
+Date:   Sun Oct 8 14:01:30 2023 +1100
+
+    Firebase fetch
+
+[33mcommit 34d2baca8248f1d11ea1da6c2bf99b6b27af5484[m
+Author: ChloeD-L <linduan1018@gmail.com>
+Date:   Sun Oct 8 14:01:03 2023 +1100
+
+    Firebase fetch
+
+[33mcommit c4bc62823f1a38599d9fa14808031b1f9e1963be[m
+Author: ChloeD-L <linduan1018@gmail.com>
+Date:   Wed Oct 4 19:43:34 2023 +1100
+
+    Merged with main branch
+
+[33mcommit 158b4ad6cd0756c8b86aa3522c984787df7b4a2a[m
+Merge: 39e38ae 025eb54
+Author: ChloeD-L <linduan1018@gmail.com>
+Date:   Wed Oct 4 19:15:41 2023 +1100
+
+    Merge branch 'main' into Lin
+
+[33mcommit 39e38ae72123fd3efb70fc8781235e1b093b8b30[m
+Author: ChloeD-L <linduan1018@gmail.com>
+Date:   Wed Oct 4 18:47:11 2023 +1100
+
+    Basic map initial commit
+
+[33mcommit ea6fc4074ef3d66bf48671f87d029e6d89e89ccf[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/Yuncong[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m
+Author: Jiutong666 <2790880930@qq.com>
+Date:   Wed Oct 4 17:43:51 2023 +1100
+
+    nav menu/home/map/profile
+
+[33mcommit 858f4bb71548ea64ed12e4d07a00379b257d3fe1[m
+Author: Jiutong666 <2790880930@qq.com>
+Date:   Wed Oct 4 17:19:27 2023 +1100
+
+    login
+
+[33mcommit 025eb5483c6a12067b829b291e6a647b354fc122[m
+Author: JanZhang666 <87907679+JanZhang666@users.noreply.github.com>
+Date:   Wed Oct 4 03:46:46 2023 +1100
+
+    Create SECURITY.md
+
+[33mcommit d463fcaf336620cd8ac4766de6759ccd6b61a702[m
+Author: Jiutong666 <2790880930@qq.com>
+Date:   Fri Sep 15 19:39:22 2023 +1000
+
+    cloud store
+
+[33mcommit 0fb673f7c4ba8214334ed4d910a0ca21e0f89892[m
+Author: Jiutong666 <2790880930@qq.com>
+Date:   Wed Sep 13 18:59:18 2023 +1000
+
+    login
+
+[33mcommit 263e4c017c4b287ea060ecf91df61b17c5d4c60c[m
+Author: Jiutong666 <2790880930@qq.com>
+Date:   Wed Sep 13 16:08:10 2023 +1000
+
+    register
+
+[33mcommit 79fe71946444b8854fac641171ad6cfe44e8e312[m
+Author: Yuncong Ji <90890339+Jiutong666@users.noreply.github.com>
+Date:   Wed Sep 6 17:12:32 2023 +1000
+
+    Create README.md
+
+[33mcommit 56b57ab2cf336304a5e3d27c6569656b184c1dab[m
+Author: Jiutong666 <2790880930@qq.com>
+Date:   Wed Sep 6 17:00:20 2023 +1000
+
+    Initial commit
