@@ -38,6 +38,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class DisplayTextActivity extends AppCompatActivity implements OnMapReadyCallback {
     private GoogleMap googleMap;
@@ -206,9 +207,10 @@ public class DisplayTextActivity extends AppCompatActivity implements OnMapReady
     }
 
     private void fetchCommentsFromFirebase() {
+        AtomicInteger pendingUsernameFetches = new AtomicInteger(0);
+
         fireStore.collection("comments")
                 .whereEqualTo("packageId", packageId)
-//                .orderBy("timestamp", Query.Direction.ASCENDING)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -218,36 +220,60 @@ public class DisplayTextActivity extends AppCompatActivity implements OnMapReady
                             String content = document.getString("textContent");
                             Timestamp timestamp = document.getTimestamp("timestamp");
 
+                            // Increment the count before starting the fetch operation
+                            pendingUsernameFetches.incrementAndGet();
+
                             // Get username from database;
                             fetchUsername(userId, new UsernameCallback() {
                                 @Override
                                 public void onCallback(String username) {
                                     Comment comment = new Comment(username, content, timestamp);
                                     commentsList.add(comment);
+
+                                    // Decrement the count and update the adapter if all fetches are done
+                                    if (pendingUsernameFetches.decrementAndGet() == 0) {
+                                        runOnUiThread(() -> {
+                                            commentsAdapter.notifyDataSetChanged();
+                                            checkCommentsEmpty(); // a method to handle visibility
+                                        });
+                                    }
                                 }
+
                                 @Override
                                 public void onError(String error) {
+                                    // Even if there's an error, we need to decrement the count
+                                    if (pendingUsernameFetches.decrementAndGet() == 0) {
+                                        runOnUiThread(() -> {
+                                            commentsAdapter.notifyDataSetChanged();
+                                            checkCommentsEmpty(); // a method to handle visibility
+                                        });
+                                    }
                                     System.out.println("Error: " + error);
                                 }
                             });
                         }
-                        commentsAdapter.notifyDataSetChanged();
 
-                        // Check for empty comments
-                        if (commentsList.isEmpty()) {
-                            noCommentsTextView.setVisibility(View.VISIBLE);
-                            commentsRecyclerView.setVisibility(View.GONE);
-                        } else {
-                            noCommentsTextView.setVisibility(View.GONE);
-                            commentsRecyclerView.setVisibility(View.VISIBLE);
+                        // Handle the case when there are no comments to begin with
+                        if (task.getResult().isEmpty()) {
+                            checkCommentsEmpty();
                         }
                     } else {
                         Exception e = task.getException();
                         System.out.println("Fetch unsuccessful: " + e.getMessage());
-                        e.printStackTrace(); // This will print the stack trace to the console
+                        e.printStackTrace();
                         Toast.makeText(this, "Error fetching comments", Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+
+    private void checkCommentsEmpty() {
+        if (commentsList.isEmpty()) {
+            noCommentsTextView.setVisibility(View.VISIBLE);
+            commentsRecyclerView.setVisibility(View.GONE);
+        } else {
+            noCommentsTextView.setVisibility(View.GONE);
+            commentsRecyclerView.setVisibility(View.VISIBLE);
+        }
     }
 
 
@@ -312,7 +338,6 @@ public class DisplayTextActivity extends AppCompatActivity implements OnMapReady
                         fetchCommentsFromFirebase();
                     })
                     .addOnFailureListener(e -> {
-                    // Handle the error
                     Toast.makeText(this, "Error posting comment", Toast.LENGTH_SHORT).show();
                     });
         }
