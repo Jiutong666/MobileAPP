@@ -159,8 +159,12 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
                                 writeInItem(document, "video");
                             }
 
-                            addMarkersToMap(videosMap);
+                            // 打印获取到的数据到日志，用于调试
+                            for (HashMap.Entry<String, MapItem> entry : videosMap.entrySet()) {
+                                Log.d(TAG1, "Key: " + entry.getKey() + " Value: " + entry.getValue().toString());
+                            }
 
+//                            addMarkersToMap(videosMap);
                         } else {
                             Log.w(TAG1, "Error getting documents.", task.getException());
                         }
@@ -198,7 +202,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
                     }
                 });
 
-        db.collection("video")
+        db.collection("videos")
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot snapshots,
@@ -220,7 +224,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
             switch (dc.getType()) {
                 case ADDED:
                 case MODIFIED:
+
                     writeInItem(document, type);
+                    if (type.equals("video")){
+                        Log.d("monitorChange", videosMap.get(document.getId()).toString());
+                    }
                     break;
                 case REMOVED:
                     removeItem(document.getId(), type);
@@ -228,6 +236,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
                     break;
             }
         }
+
+        mapRender();
     }
 
     // 在hashMap中删除数据库中没有的数据
@@ -246,10 +256,12 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
         }
     }
 
-//    public void removeMarker(String markerId, String type) {
-//
-//        Marker marker = mMap.get(markerId);
-//    }
+    public void mapRender() {
+        mMap.clear();
+        addMarkersToMap(textsMap); // Add text item markers
+        addMarkersToMap(imagesMap); // Add image item markers
+        addMarkersToMap(videosMap); // Add video item markers
+    }
 
 
     private void addMarkersToMap(HashMap<String, MapItem> itemsMap) {
@@ -295,75 +307,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
         }
     }
 
-
-    private void updateAllMarkers() {
-        // Clear existing markers if necessary
-/*        mMap.clear();*/
-
-        // Add markers for all item types
-/*        addMarkersToMap(textsMap); // Add text item markers
-        addMarkersToMap(imagesMap); // Add image item markers*/
-        addMarkersToMap(videosMap); // Add video item markers
-    }
-
-/*    @Override
-    public void onMapReady(GoogleMap googleMap) {
-
-        Log.d(TAG, "Map is ready");
-        mMap = googleMap;
-        LatLng sydney = new LatLng(37.4219983, -122.084);
-        float zoomLevel = 10.0f; // 设置缩放级别为15
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, zoomLevel));
-
-        mMap.setOnMarkerClickListener(marker -> {
-            // 每当marker被点击时，检查并更新浮动窗口的可见性
-            if (floatingWindow.getVisibility() == View.GONE) {
-                floatingWindow.setVisibility(View.VISIBLE); // 如果之前是隐藏的，现在显示它
-            }
-
-            String markerType = marker.getTitle();
-            String title;
-            String content;
-            String id = (String) marker.getTag();
-
-            switch (markerType) {
-                case "text":
-                    title = textsMap.get(id).getTitle();
-                    content = textsMap.get(id).getContent();
-                    break;
-                case "image":
-                    title = imagesMap.get(id).getTitle();
-                    content = imagesMap.get(id).getContent();
-                    break;
-                case "video":
-                    title = videosMap.get(id).getTitle();
-                    content = videosMap.get(id).getContent();
-                    break;
-                default:
-                    title = "null";
-                    content = "null";
-            }
-
-            markerTitleTextView.setText(title);
-            marker.showInfoWindow(); // 显示信息窗口
-            markerTitleTextView.setVisibility(View.VISIBLE); // 显示悬浮窗
-
-            markerDscrpTextView.setText(content);
-            marker.showInfoWindow();
-            markerDscrpTextView.setVisibility(View.VISIBLE);
-
-            return false;
-        });
-
-        // 获取UI设置并启用缩放按钮
-        UiSettings uiSettings = mMap.getUiSettings();
-        uiSettings.setZoomControlsEnabled(true);
-
-        readItem();
-        updateAllMarkers();
-
-    }*/
-
+    @Override
     public void onMapReady(GoogleMap googleMap) {
 
         Log.d(TAG, "Map is ready");
@@ -438,8 +382,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
         uiSettings.setZoomControlsEnabled(true);
 
         readItem();
-        updateAllMarkers();
+        mapRender();
 
+        Log.d("textIfThere", "program has been here");
     }
 
     private void getCurrentLocation() {
@@ -450,6 +395,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
             requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
             return;
         }
+
+        startListeningForTextItems();
 
         FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
         fusedLocationClient.getLastLocation()
@@ -521,6 +468,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
         });
 
     }
+
 
 
 }
