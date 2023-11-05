@@ -23,7 +23,10 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
@@ -41,13 +44,15 @@ public class DisplayTextActivity extends AppCompatActivity implements OnMapReady
     private ImageButton buttonLike;
     private EditText commentEditText;
     private RecyclerView commentsRecyclerView;
-    private CommentsAdapter commentsAdapter;
+    private RecyclerView.Adapter commentsAdapter;
     private List<Comment> commentsList = new ArrayList<>();
     private FirebaseFirestore fireStore;
     private FirebaseAuth auth;
 
     private String packageId; // each package content has a unique ID
+    private DocumentReference textRef;
     private boolean isLikedByCurrentUser; //track if a user liked a post
+    private int likes;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,13 +74,23 @@ public class DisplayTextActivity extends AppCompatActivity implements OnMapReady
         buttonHome = findViewById(R.id.buttonHome);
         noCommentsTextView = findViewById(R.id.noCommentsTextView);
 
-        // Initialize the RecyclerView
-        commentsRecyclerView = findViewById(R.id.commentsRecyclerView);
-        // Set its LayoutManager
-        commentsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-
         fireStore = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
+
+        // Initialize the RecyclerView
+        commentsRecyclerView = findViewById(R.id.commentsRecyclerView);
+        commentsRecyclerView.setHasFixedSize(true);
+        // Set its LayoutManager
+        LinearLayoutManager l = new LinearLayoutManager(this);
+        l.setStackFromEnd(true);
+        commentsRecyclerView.setLayoutManager(l);
+
+        Comment c = new Comment("mock user", "no", Timestamp.now());
+        commentsList.add(c);
+
+        // Initialize the adapter and set it to the RecyclerView
+        commentsAdapter = new CommentsAdapter(this, commentsList);
+        commentsRecyclerView.setAdapter(commentsAdapter);
 
         buttonLike.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -109,11 +124,12 @@ public class DisplayTextActivity extends AppCompatActivity implements OnMapReady
             }
         });
 
-        fetchDataFromFirebase();
+    }
 
-        // Initialize the adapter and set it to the RecyclerView
-        commentsAdapter = new CommentsAdapter(this, commentsList);
-        commentsRecyclerView.setAdapter(commentsAdapter);
+    @Override
+    protected void onStart() {
+        super.onStart();
+        fetchDataFromFirebase();
     }
 
     private void fetchDataFromFirebase() {
@@ -125,11 +141,14 @@ public class DisplayTextActivity extends AppCompatActivity implements OnMapReady
                 .get()
                 .addOnSuccessListener(document -> {
         if (document.exists()) {
+            textRef = fireStore.collection("texts").document(packageId);
+
             String title = document.getString("title");
             String content = document.getString("content");
             double latitude = document.getDouble("latitude");
             double longitude = document.getDouble("longitude");
-            String username = document.getString("userEmail");
+            String userEmail = document.getString("userEmail");
+            this.likes = document.getDouble("likes").intValue();
             textContent.setText(title + "\n" + content);
 
             if (googleMap != null) {
@@ -140,7 +159,7 @@ public class DisplayTextActivity extends AppCompatActivity implements OnMapReady
                 googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15));
             }
 
-            userName.setText(username);
+            userName.setText(userEmail);
             // Fetch user details, likes, and comments...
         }
     });
@@ -157,19 +176,29 @@ public class DisplayTextActivity extends AppCompatActivity implements OnMapReady
                     }
                 });
         // Fetch comments of the package
-        fetchCommentsFromFirebase();
+//        fetchCommentsFromFirebase();
     }
+
+//    private String fetchUsernameFromFirebase(){
+//        fireStore.collection("users")
+//    }
 
     private void fetchCommentsFromFirebase() {
         fireStore.collection("comments")
                 .whereEqualTo("packageId", packageId)
-                .orderBy("timestamp", Query.Direction.ASCENDING)
+//                .orderBy("timestamp", Query.Direction.ASCENDING)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         commentsList.clear();
                         for (DocumentSnapshot document : task.getResult()) {
-                            Comment comment = document.toObject(Comment.class);
+                            String userId = document.getString("userId");
+                            String content = document.getString("textContent");
+                            Timestamp timestamp = document.getTimestamp("timestamp");
+
+                            // Get username from database; /************************/
+
+                            Comment comment = new Comment(userId, content, timestamp);
                             commentsList.add(comment);
                         }
                         commentsAdapter.notifyDataSetChanged();
@@ -183,6 +212,9 @@ public class DisplayTextActivity extends AppCompatActivity implements OnMapReady
                             commentsRecyclerView.setVisibility(View.VISIBLE);
                         }
                     } else {
+                        Exception e = task.getException();
+                        System.out.println("Fetch unsuccessful: " + e.getMessage());
+                        e.printStackTrace(); // This will print the stack trace to the console
                         Toast.makeText(this, "Error fetching comments", Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -190,25 +222,43 @@ public class DisplayTextActivity extends AppCompatActivity implements OnMapReady
 
 
     private void toggleLikeStatus() {
+        String userId = auth.getCurrentUser().getUid();
         if (isLikedByCurrentUser) {
             // Remove the like from Firestore
             fireStore.collection("likes")
-                    .whereEqualTo("userId", auth.getCurrentUser().getUid())
+                    .whereEqualTo("userId", userId)
                     .whereEqualTo("packageId", packageId)
                     .get()
                     .addOnCompleteListener(task -> {
-                if (task.isSuccessful() && !task.getResult().isEmpty()) {
-                    for (DocumentSnapshot document : task.getResult()) {
-                        fireStore.collection("likes").document(document.getId()).delete();
-                    }
-                }
-            });
+                        if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                            for (DocumentSnapshot document : task.getResult()) {
+                                fireStore.collection("likes").document(document.getId()).delete()
+                                        .addOnSuccessListener(aVoid -> {
+                                            Toast.makeText(this, "unlike successful!", Toast.LENGTH_SHORT).show();
+                                            // decrement the number of likes
+                                            textRef.update("likes", FieldValue.increment(-1));
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            Toast.makeText(this, "Error unlike", Toast.LENGTH_SHORT).show();
+                                        });
+                            }
+                        }
+                    });
+
         } else {
             // Add the like to Firestore
             Map<String, Object> likeData = new HashMap<>();
-            likeData.put("userId", auth.getCurrentUser().getUid());
+            likeData.put("userId", userId);
             likeData.put("packageId", packageId);
-            fireStore.collection("likes").add(likeData);
+            fireStore.collection("likes").add(likeData)
+                    .addOnSuccessListener(documentReference -> {
+                        // Increment the number of likes
+                        textRef.update("likes", FieldValue.increment(1));
+                        Toast.makeText(this, "like successful!", Toast.LENGTH_SHORT).show();
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(this, "Error like", Toast.LENGTH_SHORT).show();
+                    });
         }
         isLikedByCurrentUser = !isLikedByCurrentUser;
         buttonLike.setImageResource(isLikedByCurrentUser ? R.drawable.liked : R.drawable.like);
@@ -218,6 +268,7 @@ public class DisplayTextActivity extends AppCompatActivity implements OnMapReady
         String commentText = commentEditText.getText().toString().trim();
         if (!commentText.isEmpty()) {
             Map<String, Object> commentData = new HashMap<>();
+
             commentData.put("userId", auth.getCurrentUser().getUid());
             commentData.put("packageId", packageId);
             commentData.put("textContent", commentText);
@@ -225,6 +276,7 @@ public class DisplayTextActivity extends AppCompatActivity implements OnMapReady
 
             fireStore.collection("comments").add(commentData)
                     .addOnSuccessListener(documentReference -> {
+                        Toast.makeText(this, "Comment successful!", Toast.LENGTH_SHORT).show();
                         commentEditText.setText(""); // Clear the input field
                         fetchCommentsFromFirebase();
                     })

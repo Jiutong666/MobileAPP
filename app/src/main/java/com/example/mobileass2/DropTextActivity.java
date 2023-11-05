@@ -181,6 +181,7 @@ public class DropTextActivity extends AppCompatActivity implements OnMapReadyCal
         data.put("latitude", latitude);
         data.put("longitude", longitude);
         data.put("userEmail", userEmail);
+        data.put("likes", 0);
 
         fireStore.collection("texts").add(data)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {

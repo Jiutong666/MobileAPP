@@ -16,9 +16,9 @@
             android:id="@+id/commentUsername"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Username"
             android:textColor="#555454"
-            android:textSize="12sp"
+            android:hint= "username"
+            android:textSize="14sp"
             android:textStyle="bold" />
 
         <TextView
@@ -26,9 +26,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
-            android:text="timestamp"
             android:textColor="#939393"
-            android:textSize="8sp"
+            android:hint= "time"
+            android:textSize="10sp"
             android:textStyle="italic" />
 
     </LinearLayout>

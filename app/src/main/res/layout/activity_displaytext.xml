@@ -54,7 +54,6 @@
                 android:id="@+id/textViewUsername"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="3dp"
                 android:text="Username"
                 android:textSize="16sp" />
 
@@ -62,7 +61,7 @@
                 android:id="@+id/textViewComment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="6dp"
+                android:padding="5dp"
                 android:text="Content here..."
                 android:textSize="18sp" />
 
@@ -79,7 +78,8 @@
             android:id="@+id/commentsRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="75dp"
-            android:scrollbars="vertical" />
+            android:scrollbars="vertical"
+            android:visibility="visible"/>
 
         <TextView
             android:id="@+id/noCommentsTextView"
@@ -105,21 +105,22 @@
             android:layout_width="0dp"
             android:layout_height="50dp"
             android:layout_weight="1"
+            android:padding="5dp"
             android:gravity="center_vertical"
             android:hint="Add a comment..." />
 
         <Button
             android:id="@+id/buttonSubmit"
             style="@style/Widget.AppCompat.Button"
-            android:layout_width="1dp"
+            android:layout_width="55dp"
             android:layout_height="match_parent"
             android:layout_weight="0.25"
             android:backgroundTintMode="add"
             android:fontFamily="serif"
             android:text="Submit"
-            android:textAlignment="viewStart"
+            android:textAlignment="center"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:textSize="10sp"
+            android:textSize="14sp"
             android:typeface="normal" />
 
     </LinearLayout>
