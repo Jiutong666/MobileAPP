@@ -104,6 +104,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
                             for (HashMap.Entry<String, MapItem> entry : textsMap.entrySet()) {
                                 Log.d(TAG1, "Key: " + entry.getKey() + " Value: " + entry.getValue().toString());
                             }
+
+                            addMarkersToMap(textsMap);
                         } else {
                             Log.w(TAG1, "Error getting documents.", task.getException());
                         }
@@ -123,6 +125,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
                             for (HashMap.Entry<String, MapItem> entry : imagesMap.entrySet()) {
                                 Log.d(TAG1, "Key: " + entry.getKey() + " Value: " + entry.getValue().toString());
                             }
+
+                            addMarkersToMap(imagesMap);
+
                         } else {
                             Log.w(TAG1, "Error getting documents.", task.getException());
                         }
@@ -139,28 +144,12 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
                                 writeInItem(document, "video");
                             }
 
-                            addMarkersToMap(videosMap);
-
                             // 打印获取到的数据到日志，用于调试
-//                            for (HashMap.Entry<String, VideoItem> entry : videosMap.entrySet()) {
-//                                Log.d(TAG1, "Key: " + entry.getKey() + " Value: " + entry.getValue().toString());
-//
-//                                String id = entry.getKey(); // The ID from your map entry
-//                                Item item = entry.getValue();
-//                                LatLng position = new LatLng(item.getLatitude(), item.getLongitude());
-//
-//                                // Add a marker to the map with the position and title from the Item
-//                                Marker marker = mMap.addMarker(new MarkerOptions()
-//                                        .position(position)
-//                                        .title(item.getTitle())
-//                                );
-//
-//                                marker.setTag(id);
-//
-//                                Log.d("addMarkersToMap", "Marker added with ID: " + id + " at position: " + position);
-//
-//
-//                            }
+                            for (HashMap.Entry<String, MapItem> entry : videosMap.entrySet()) {
+                                Log.d(TAG1, "Key: " + entry.getKey() + " Value: " + entry.getValue().toString());
+                            }
+
+                            addMarkersToMap(videosMap);
                         } else {
                             Log.w(TAG1, "Error getting documents.", task.getException());
                         }
@@ -198,7 +187,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
                     }
                 });
 
-        db.collection("video")
+        db.collection("videos")
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot snapshots,
@@ -224,15 +213,15 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
                     break;
                 case REMOVED:
                     removeItem(document.getId(), type);
-                    textsMap.remove(document.getId());
                     break;
             }
         }
+
+        mapRender();
     }
 
     // 在hashMap中删除数据库中没有的数据
     private void removeItem(String id, String type) {
-        Marker marker;
         switch (type) {
             case "text":
                 textsMap.remove(id);
@@ -246,10 +235,12 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
         }
     }
 
-//    public void removeMarker(String markerId, String type) {
-//
-//        Marker marker = mMap.get(markerId);
-//    }
+    public void mapRender() {
+        mMap.clear();
+        addMarkersToMap(textsMap); // Add text item markers
+        addMarkersToMap(imagesMap); // Add image item markers
+        addMarkersToMap(videosMap); // Add video item markers
+    }
 
 
     private void addMarkersToMap(HashMap<String, MapItem> itemsMap) {
@@ -271,16 +262,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
             Log.d("addMarkersToMap", "Marker added with ID: " + id + " at position: " + position);
 
         }
-    }
-
-    private void updateAllMarkers() {
-        // Clear existing markers if necessary
-        mMap.clear();
-
-        // Add markers for all item types
-//        addMarkersToMap(textsMap); // Add text item markers
-//        addMarkersToMap(imagesMap); // Add image item markers
-        addMarkersToMap(videosMap); // Add video item markers
     }
 
     @Override
@@ -332,18 +313,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
         uiSettings.setZoomControlsEnabled(true);
 
         readItem();
-        updateAllMarkers();
 
-        //        mMap.addMarker(new MarkerOptions()
-//                .position(sydney)
-//                .title("Marker in Sydney")
-//                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
-//        );
+        Log.d("textIfThere", "program has been here");
 
-        // 加载JSON文件并添加标记
-//        addMarkersFromJson("text.json", BitmapDescriptorFactory.HUE_RED);
-//        addMarkersFromJson("image.json", BitmapDescriptorFactory.HUE_BLUE);
-//        addMarkersFromJson("video.json", BitmapDescriptorFactory.HUE_GREEN);
+        startListeningForTextItems();
+
     }
 
 
@@ -368,63 +342,4 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
             mapFragment.getMapAsync(this);
         }
     }
-
-//    private String readFromFile (File file) {
-//        StringBuilder content = new StringBuilder();
-//        try {
-//            if (!file.exists()) {
-//                Log.e("FileRead", "文件不存在: " + file.getAbsolutePath());
-//                return "";
-//            }
-//
-//            Log.d("FileRead", "正在读取文件: " + file.getAbsolutePath());
-//
-//            FileInputStream fis = new FileInputStream(file);
-//            InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8);
-//            BufferedReader br = new BufferedReader(isr);
-//            String line;
-//            while ((line = br.readLine()) != null) {
-//                content.append(line);
-//                Log.d("FileRead", "读取到内容: " + line);
-//            }
-//            br.close();
-//            isr.close();
-//            fis.close();
-//            Log.d("FileRead", "文件读取完成: " + file.getAbsolutePath());
-//        } catch (IOException e) {
-//            Log.e("FileRead", "读取文件时发生错误: " + e.getMessage());
-//            e.printStackTrace();
-//        }
-//        Log.d("FileRead", "文件读取完成: " + content.toString());
-//        return content.toString();
-//    }
-//
-//
-//    private void addMarkersFromJson(String fileName, float color) {
-//        try {
-//            // 获取JSON文件的路径
-//            String dirName = "myData";
-//            File directory = new File(requireActivity().getExternalFilesDir(null), dirName);
-//            File file = new File(directory, fileName);
-//            // 读取JSON文件
-//            String json = readFromFile(file);
-//            JSONObject jsonObject = new JSONObject(json);
-//            Iterator<String> keys = jsonObject.keys();
-//            while (keys.hasNext()) {
-//                String key = keys.next();
-//                JSONObject item = jsonObject.getJSONObject(key);
-//                double latitude = item.getDouble("latitude");
-//                double longitude = item.getDouble("longitude");
-//                String title = item.getString("title");
-//                Log.d(TAG, "Adding marker: " + title + ", " + latitude + ", " + longitude);
-//                mMap.addMarker(new MarkerOptions()
-//                        .position(new LatLng(latitude, longitude))
-//                        .title(title)
-//                        .icon(BitmapDescriptorFactory.defaultMarker(color)));
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
-
 }
