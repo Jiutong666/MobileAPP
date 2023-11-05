@@ -69,6 +69,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
     private Location currentLocation;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
+    private String idToTrans;
+    private String typeToTrans;
+
     // 第一次从数据库读取全部数据
     public void writeInItem(QueryDocumentSnapshot document, String itemType) {
         switch (itemType){
@@ -329,6 +332,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
             String title;
             String content;
             String id = (String) marker.getTag();
+            idToTrans = (String) marker.getTag();
+            typeToTrans = marker.getTitle();
 
             switch (markerType) {
                 case "text":
@@ -473,10 +478,24 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
         showDetail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                String packageId = documentReference.getId(); // Send the ID to MainActivity and start it
-//                Intent intent = new Intent(DropTextActivity.this, DisplayTextActivity.class);
-//                intent.putExtra("PACKAGE_ID", packageId); // Pass the ID as an extra
-//                startActivity(intent);
+
+                switch (typeToTrans){
+                    case "text":
+                        String packageId = idToTrans; // Send the ID to MainActivity and start it
+                        Intent intent = new Intent(getActivity(), DisplayTextActivity.class);
+                        intent.putExtra("PACKAGE_ID", packageId); // Pass the ID as an extra
+                        startActivity(intent);
+                        break;
+
+                    case "image":
+
+                        break;
+
+                    case "video":
+
+                        break;
+                }
+
             }
         });
     }
