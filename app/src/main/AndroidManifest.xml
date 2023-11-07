@@ -66,6 +66,7 @@
         <activity android:name=".DropPictureActivity"/>
         <activity android:name=".DropVideoActivity"/>
         <activity android:name=".DisplayTextActivity"/>
+        <activity android:name=".DisplayImageActivity"/>
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyBaYk39oS5iAGIp8O8S8kr4c-6tTrC5k7M" />

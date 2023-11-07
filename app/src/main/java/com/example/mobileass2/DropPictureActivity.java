@@ -178,9 +178,30 @@ public class DropPictureActivity extends AppCompatActivity implements OnMapReady
 
                         // Save to Firestore
                         fireStore.collection("images").document().set(docData)
-                                .addOnSuccessListener(aVoid -> {
-                                    Toast.makeText(DropPictureActivity.this, "Image and data stored successfully", Toast.LENGTH_SHORT).show();
-                                    startLocationUpdates(); // Place marker on map after upload
+                                .addOnSuccessListener(new OnSuccessListener<Void>() { // Use Void here
+                                    @Override
+                                    public void onSuccess(Void aVoid) { // No parameter is passed here
+                                        Toast.makeText(DropPictureActivity.this, "Image and data stored successfully", Toast.LENGTH_SHORT).show();
+                                        startLocationUpdates(); // Place marker on map after upload
+
+                                        // Since we don't get the DocumentReference directly, we need to save it before calling set.
+                                        DocumentReference newDocRef = fireStore.collection("images").document();
+                                        newDocRef.set(docData).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                // Document was successfully written
+                                                Toast.makeText(DropPictureActivity.this, "Image and data stored successfully", Toast.LENGTH_SHORT).show();
+                                                startLocationUpdates(); // Place marker on map after upload
+
+                                                // Get the ID of the created document
+                                                String packageId = newDocRef.getId();
+                                                // Send the ID to MainActivity and start it
+                                                Intent intent = new Intent(DropPictureActivity.this, DisplayImageActivity.class);
+                                                intent.putExtra("PACKAGE_ID", packageId); // Pass the ID as an extra
+                                                startActivity(intent);
+                                            }
+                                        });
+                                    }
                                 })
                                 .addOnFailureListener(e -> Toast.makeText(DropPictureActivity.this, "Error storing data", Toast.LENGTH_SHORT).show());
                     } else {
