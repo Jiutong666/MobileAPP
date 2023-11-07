@@ -4,9 +4,108 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@drawable/bg_gradient"
     tools:context=".HomeFragment">
 
+    <!-- ScrollView for Scrolling Content -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="20dp"
+        android:paddingBottom="20dp">
+
+    <!-- Text Rankings Title -->
+    <TextView
+        android:id="@+id/textRankingTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Text Rankings"
+        android:gravity="center_horizontal"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:shadowColor="#66000000"
+        android:shadowDx="4"
+        android:shadowDy="4"
+        android:shadowRadius="2"/>
+
+    <!-- RecyclerView for Text Rankings -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/textRankingRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/textRankingTitle"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+    <!-- Image Rankings Title -->
+    <TextView
+        android:id="@+id/pictureRankingTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:text="Image Rankings"
+        android:layout_below="@id/textRankingRecyclerView"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:shadowColor="#66000000"
+        android:shadowDx="4"
+        android:shadowDy="4"
+        android:shadowRadius="2"/>
+
+    <!-- RecyclerView for Image Rankings -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/pictureRankingRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        android:layout_below="@id/pictureRankingTitle"
+        android:layout_marginTop="8dp" />
+
+
+    <!-- Video Rankings Title -->
+    <TextView
+        android:id="@+id/videoRankingTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:text="Video Rankings"
+        android:layout_below="@id/pictureRankingRecyclerView"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:shadowColor="#66000000"
+        android:shadowDx="4"
+        android:shadowDy="4"
+        android:shadowRadius="2"/>
+
+    <!-- RecyclerView for Video Rankings -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/videoRankingRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        android:layout_below="@id/videoRankingTitle"
+        android:layout_marginTop="8dp" />
+
+    </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
     <LinearLayout
         android:id="@+id/buttonContainer"
         android:layout_width="match_parent"
@@ -59,5 +158,4 @@
         android:layout_alignParentEnd="true"
         android:layout_margin="16dp"
         app:srcCompat="@android:drawable/ic_input_add" />
-
 </RelativeLayout>

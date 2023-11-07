@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/card_margin"
+    app:cardCornerRadius="@dimen/card_corner_radius"
+    app:cardElevation="@dimen/card_elevation">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="@dimen/padding_large"
+        android:gravity="center_vertical">
+
+        <!-- Ranking Number -->
+        <TextView
+            android:id="@+id/textViewRank"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:textSize="@dimen/text_size_large"
+            android:textColor="@color/colorPrimary"
+            android:paddingRight="5dp"
+            android:textStyle="bold"
+            android:text="1" />
+
+        <!-- Content Thumbnail or Icon -->
+        <ImageView
+            android:id="@+id/imageViewThumbnail"
+            android:layout_width="@dimen/thumbnail_size"
+            android:layout_height="@dimen/thumbnail_size"
+            android:layout_marginEnd="@dimen/margin_small"
+            app:srcCompat="@drawable/text" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <!-- Content Title -->
+            <TextView
+                android:id="@+id/textViewTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/text_size_medium"
+                android:textColor="@color/colorTextPrimary"
+                android:text="Content Title" />
+
+            <!-- Number of Likes -->
+            <TextView
+                android:id="@+id/textViewLikes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/text_size_small"
+                android:textColor="@color/colorTextSecondary"
+                android:text="999 Likes"
+                android:drawableStart="@drawable/like"
+                android:drawablePadding="@dimen/padding_small"
+                android:layout_marginTop="@dimen/margin_extra_small" />
+
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/buttonSeeDetails"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="See Details"
+            android:textColor="@color/colorPrimary"
+            android:onClick="onSeeDetailsClick"
+            />
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>
