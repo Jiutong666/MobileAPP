@@ -485,25 +485,26 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
             }
         });
         showDetail.setOnClickListener(new View.OnClickListener() {
-            String packageId = idToTrans; // Send the ID to MainActivity and start it
-            Intent intent;
             @Override
             public void onClick(View v) {
 
                 switch (typeToTrans){
                     case "text":
-                        intent = new Intent(getActivity(), DisplayTextActivity.class);
+                        String packageId = idToTrans;
+                        Intent intent = new Intent(getActivity(), DisplayTextActivity.class);
                         intent.putExtra("PACKAGE_ID", packageId); // Pass the ID as an extra
                         startActivity(intent);
                         break;
 
                     case "image":
+                        packageId = idToTrans;
                         intent = new Intent(getActivity(), DisplayImageActivity.class);
                         intent.putExtra("PACKAGE_ID", packageId); // Pass the ID as an extra
                         startActivity(intent);
                         break;
 
                     case "video":
+                        packageId = idToTrans;
                         intent = new Intent(getActivity(), DisplayVideoActivity.class);
                         intent.putExtra("PACKAGE_ID", packageId); // Pass the ID as an extra
                         startActivity(intent);
