@@ -33,7 +33,9 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -156,9 +158,26 @@ public class DropVideoActivity extends AppCompatActivity implements OnMapReadyCa
 
                     // Save to Firestore
                     fireStore.collection("videos").document().set(docData)
-                            .addOnSuccessListener(aVoid -> {
-                                Toast.makeText(DropVideoActivity.this, "Video and data stored successfully", Toast.LENGTH_SHORT).show();
-                                startLocationUpdates();
+                            .addOnSuccessListener(new OnSuccessListener<Void>() { // Use Void here
+                                @Override
+                                public void onSuccess(Void aVoid) { // No parameter is passed here
+                                    Toast.makeText(DropVideoActivity.this, "video and data stored successfully", Toast.LENGTH_SHORT).show();
+                                    startLocationUpdates(); // Place marker on map after upload
+
+                                    // Since we don't get the DocumentReference directly, we need to save it before calling set.
+                                    DocumentReference newDocRef = fireStore.collection("videos").document();
+                                    newDocRef.set(docData).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            // Get the ID of the created document
+                                            String packageId = newDocRef.getId();
+                                            // Send the ID to MainActivity and start it
+                                            Intent intent = new Intent(DropVideoActivity.this, DisplayVideoActivity.class);
+                                            intent.putExtra("PACKAGE_ID", packageId); // Pass the ID as an extra
+                                            startActivity(intent);
+                                        }
+                                    });
+                                }
                             })
                             .addOnFailureListener(e -> Toast.makeText(DropVideoActivity.this, "Error storing data", Toast.LENGTH_SHORT).show());
                 } else {

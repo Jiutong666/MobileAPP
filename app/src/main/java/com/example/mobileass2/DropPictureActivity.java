@@ -189,10 +189,6 @@ public class DropPictureActivity extends AppCompatActivity implements OnMapReady
                                         newDocRef.set(docData).addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void aVoid) {
-                                                // Document was successfully written
-                                                Toast.makeText(DropPictureActivity.this, "Image and data stored successfully", Toast.LENGTH_SHORT).show();
-                                                startLocationUpdates(); // Place marker on map after upload
-
                                                 // Get the ID of the created document
                                                 String packageId = newDocRef.getId();
                                                 // Send the ID to MainActivity and start it

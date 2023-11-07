@@ -30,6 +30,12 @@
             android:orientation="horizontal"
             android:padding="16dp">
 
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.2"
+            android:orientation="vertical">
+
             <ImageView
                 android:id="@+id/imageViewAvatar"
                 android:layout_width="58dp"
@@ -45,6 +51,7 @@
                 android:padding="8dp"
                 android:scaleType="centerInside"
                 android:src="@drawable/like" />
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -60,14 +67,18 @@
                     android:text="Username"
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
-                <ImageView
-                    android:id="@+id/imageViewContent"
+                <VideoView
+                    android:id="@+id/videoViewContent"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:adjustViewBounds="true" />
+                    android:layout_gravity="center"
+                    android:layout_marginTop="6dp" />
+
             </LinearLayout>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
+
+
 
     <!-- Comments Section with fixed height -->
     <LinearLayout
