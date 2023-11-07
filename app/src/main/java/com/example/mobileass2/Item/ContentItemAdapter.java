@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mobileass2.DisplayImageActivity;
 import com.example.mobileass2.DisplayTextActivity;
+import com.example.mobileass2.DisplayVideoActivity;
 import com.example.mobileass2.R;
 
 import java.text.BreakIterator;
@@ -65,7 +66,7 @@ public class ContentItemAdapter extends RecyclerView.Adapter<ContentItemAdapter.
                 intent = new Intent(context, DisplayImageActivity.class);
                 break;
             case "videos":
-                intent = new Intent(context, DisplayImageActivity.class);
+                intent = new Intent(context, DisplayVideoActivity.class);
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported item type: " + item.getType());
