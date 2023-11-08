@@ -2,11 +2,11 @@ package com.example.mobileass2;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -55,7 +56,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
     private TextView markerDscrpTextView;
     private TextView markerDistanceView;
 
-    private TextView markerLikesView;
+    private TextView likesNum;
+    private Button showDetail;
 
     private HashMap<String, MapItem> textsMap = new HashMap<>(); // 用来存储Text对象的HashMap
     private HashMap<String, MapItem> imagesMap = new HashMap<>();
@@ -68,6 +70,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
     private Location currentLocation;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
+    private String idToTrans;
+    private String typeToTrans;
+
     // 第一次从数据库读取全部数据
     public void writeInItem(QueryDocumentSnapshot document, String itemType) {
         switch (itemType){
@@ -79,7 +84,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
                         document.getDouble("longitude"),
                         document.getString("title"),
                         document.getString("userEmail"),
-                        document.getLong("likes")
+                        document.getDouble("likes").intValue()
                 );
                 // 将Text对象添加到HashMap中，以document的ID为键
                 textsMap.put(document.getId(), textMapItem);
@@ -93,8 +98,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
                         document.getDouble("longitude"),
                         document.getString("title"),
                         document.getString("userEmail"),
-                        document.getLong("likes")
-                );
+                        document.getDouble("likes").intValue());
                 imagesMap.put(document.getId(), imageItem);
                 break;
 
@@ -106,8 +110,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
                         document.getDouble("longitude"),
                         document.getString("title"),
                         document.getString("userEmail"),
-                        document.getLong("likes")
-                );
+                        document.getDouble("likes").intValue());
                 videosMap.put(document.getId(), videoItem);
                 break;
         }
@@ -262,12 +265,13 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
     }
 
     public void mapRender() {
-        mMap.clear();
-        addMarkersToMap(textsMap); // Add text item markers
-        addMarkersToMap(imagesMap); // Add image item markers
-        addMarkersToMap(videosMap); // Add video item markers
+        if (mMap != null) {
+            mMap.clear();
+            addMarkersToMap(textsMap); // Add text item markers
+            addMarkersToMap(imagesMap); // Add image item markers
+            addMarkersToMap(videosMap); // Add video item markers
+        }
     }
-
 
     private void addMarkersToMap(HashMap<String, MapItem> itemsMap) {
         for (HashMap.Entry<String, MapItem> entry : itemsMap.entrySet()) {
@@ -281,7 +285,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
                 marker = mMap.addMarker(new MarkerOptions()
                                 .position(position)
                                 .title(item.getType())
-                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.text4))
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.text))
                         // Here you can add more customization to your marker
                 );
             } else if ("image".equals(item.getType())) {
@@ -289,7 +293,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
                 marker = mMap.addMarker(new MarkerOptions()
                                 .position(position)
                                 .title(item.getType())
-                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.image4))
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.image))
                         // Here you can add more customization to your marker
                 );
             } else if ("video".equals(item.getType())) {
@@ -330,29 +334,31 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
             String markerType = marker.getTitle();
             String title;
             String content;
-            long likes;
+            String likes;
             String id = (String) marker.getTag();
+            idToTrans = (String) marker.getTag();
+            typeToTrans = marker.getTitle();
 
             switch (markerType) {
                 case "text":
                     title = textsMap.get(id).getTitle();
                     content = textsMap.get(id).getContent();
-                    likes = textsMap.get(id).getLikeNo();
+                    likes = String.valueOf(textsMap.get(id).getLikeNo());
                     break;
                 case "image":
                     title = imagesMap.get(id).getTitle();
                     content = imagesMap.get(id).getContent();
-                    likes = imagesMap.get(id).getLikeNo();
+                    likes = String.valueOf(imagesMap.get(id).getLikeNo());
                     break;
                 case "video":
                     title = videosMap.get(id).getTitle();
                     content = videosMap.get(id).getContent();
-                    likes = videosMap.get(id).getLikeNo();
+                    likes = String.valueOf(videosMap.get(id).getLikeNo());
                     break;
                 default:
                     title = "null";
                     content = "null";
-                    likes = 0;
+                    likes = "0";
             }
 
             // 确保你在类中已经定义了currentLocation
@@ -383,12 +389,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
             markerDscrpTextView.setText(content);
             marker.showInfoWindow();
             markerDscrpTextView.setVisibility(View.VISIBLE);
-
-            markerLikesView.setText(String.valueOf(likes));
-            marker.showInfoWindow();
-            markerLikesView.setVisibility(View.VISIBLE);
-
-
+            likesNum.setText(likes);
             return false;
         });
 
@@ -455,7 +456,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
         markerTitleTextView = view.findViewById(R.id.marker_title);
         markerDscrpTextView = view.findViewById(R.id.marker_description);
         markerDistanceView = view.findViewById(R.id.distance_text);
-        markerLikesView = view.findViewById(R.id.likes);
+        likesNum = view.findViewById(R.id.likes);
 
         // 请确保getActivity()不会返回null
         Context context = getActivity();
@@ -475,6 +476,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
         floatingWindow = view.findViewById(R.id.floating_window);
         floatingWindow.setVisibility(View.GONE);
 
+        showDetail = view.findViewById(R.id.right_icon);
         // 设置关闭按钮
         ImageButton closeButton = view.findViewById(R.id.close_button);
         closeButton.setOnClickListener(new View.OnClickListener() {
@@ -484,7 +486,34 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
                 floatingWindow.setVisibility(View.GONE);
             }
         });
+        showDetail.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
+                switch (typeToTrans){
+                    case "text":
+                        String packageId = idToTrans;
+                        Intent intent = new Intent(getActivity(), DisplayTextActivity.class);
+                        intent.putExtra("PACKAGE_ID", packageId); // Pass the ID as an extra
+                        startActivity(intent);
+                        break;
+
+                    case "image":
+                        packageId = idToTrans;
+                        intent = new Intent(getActivity(), DisplayImageActivity.class);
+                        intent.putExtra("PACKAGE_ID", packageId); // Pass the ID as an extra
+                        startActivity(intent);
+                        break;
+
+                    case "video":
+                        packageId = idToTrans;
+                        intent = new Intent(getActivity(), DisplayVideoActivity.class);
+                        intent.putExtra("PACKAGE_ID", packageId); // Pass the ID as an extra
+                        startActivity(intent);
+                        break;
+                }
+            }
+        });
     }
 
 
