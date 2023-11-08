@@ -8,14 +8,15 @@
     android:padding="16dp">
 
     <!-- Map Fragment with reduced height -->
+
+    <!-- User Profile Section with CardView -->
     <fragment
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
-        android:layout_height="183dp"
+        android:layout_height="130dp"
         android:layout_marginBottom="16dp" />
 
-    <!-- User Profile Section with CardView -->
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -26,25 +27,32 @@
         <LinearLayout
             android:id="@+id/textViewContent"
             android:layout_width="match_parent"
-            android:layout_height="208dp"
+            android:layout_height="260dp"
             android:orientation="horizontal"
             android:padding="16dp">
 
-            <ImageView
-                android:id="@+id/imageViewAvatar"
-                android:layout_width="58dp"
-                android:layout_height="58dp"
-                android:src="@drawable/baseline_person_24" />
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.2"
+                android:orientation="vertical">
 
-            <ImageButton
-                android:id="@+id/buttonLike"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="@null"
-                android:contentDescription="@string/description_like_button"
-                android:padding="8dp"
-                android:scaleType="centerInside"
-                android:src="@drawable/like" />
+                <ImageView
+                    android:id="@+id/imageViewAvatar"
+                    android:layout_width="58dp"
+                    android:layout_height="58dp"
+                    android:src="@drawable/baseline_person_24" />
+
+                <ImageButton
+                    android:id="@+id/buttonLike"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@null"
+                    android:contentDescription="@string/description_like_button"
+                    android:padding="8dp"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/like" />
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -58,13 +66,16 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Username"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                    android:textSize="16sp" />
 
                 <ImageView
                     android:id="@+id/imageViewContent"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:adjustViewBounds="true" />
+                    android:adjustViewBounds="true"
+                    android:scaleType="fitXY" />
+
             </LinearLayout>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
