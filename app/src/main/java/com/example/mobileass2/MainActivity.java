@@ -29,7 +29,9 @@ public class MainActivity extends AppCompatActivity {
                 replaceFragment(new HomeFragment());
             } else if (id == R.id.map) {
                 replaceFragment(new MapsFragment());
-            } else if (id == R.id.profile) {
+            } else if (id == R.id.user) {
+                replaceFragment(new UsersFragment());
+            }else if (id == R.id.profile) {
                 replaceFragment(new ProfileFragment());
             }
 
