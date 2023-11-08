@@ -457,6 +457,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
 
         // 初始化你之前定义的视图...
         floatingWindow = view.findViewById(R.id.floating_window);
+        floatingWindow.setVisibility(View.GONE);
+
         // 设置关闭按钮
         ImageButton closeButton = view.findViewById(R.id.close_button);
         closeButton.setOnClickListener(new View.OnClickListener() {
