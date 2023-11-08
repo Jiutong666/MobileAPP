@@ -93,8 +93,8 @@ public class DropTextActivity extends AppCompatActivity implements OnMapReadyCal
                         // Start location updates (if needed)
                         startLocationUpdates();
 
-                        // Display coordinates in the TextView
-                        displayCoordinates();
+//                        // Display coordinates in the TextView
+//                        displayCoordinates();
 
                         // Retrieve current location, store data to Firestore and display marker
                         fusedLocationClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
