@@ -38,7 +38,7 @@ public class UsersFragment extends Fragment {
     private RecyclerView recyclerView;
 
     private UserAdapter userAdapter;
-    private List<User> mUsers;
+    private List<User> userList;
 
     public FirebaseFirestore fireStore;
 
@@ -56,7 +56,7 @@ public class UsersFragment extends Fragment {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        mUsers = new ArrayList<>();
+        userList = new ArrayList<>();
         readUsers();
         return view;
     }
@@ -68,11 +68,11 @@ public class UsersFragment extends Fragment {
         // 获取整个 "users" 集合的引用
         CollectionReference usersCollectionRef = fireStore.collection("users");
         // 初始化适配器并设置到RecyclerView
-        userAdapter = new UserAdapter(getContext(), mUsers, false);
+        userAdapter = new UserAdapter(getContext(), userList, false);
         recyclerView.setAdapter(userAdapter);
 
         // 清空当前用户列表
-        mUsers.clear();
+        userList.clear();
         // 添加事件监听器来监听整个集合的变化
         usersCollectionRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
@@ -90,7 +90,7 @@ public class UsersFragment extends Fragment {
                             user.setId(documentSnapshot.getId());
                             // 这里可以添加一个判断来排除当前用户
                             if (!user.getId().equals(firebaseAuth.getUid())) {
-                                mUsers.add(user);
+                                userList.add(user);
                             }
                         }
                     }

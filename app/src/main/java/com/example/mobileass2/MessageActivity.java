@@ -43,22 +43,19 @@ public class MessageActivity extends AppCompatActivity {
 
     TextView username;
 
-    FirebaseUser fuser;
+    FirebaseUser firebaseUser;
     DatabaseReference reference;
 
-    ImageButton btn_send;
-    EditText text_send;
+    ImageButton sendBtn;
+    EditText sendText;
 
-    List<Chat> mchat;
+    List<Chat> chatList;
     RecyclerView recyclerView;
 
     MessageAdapter messageAdapter;
 
     Intent intent;
 
-    ValueEventListener seenListener;
-
-    String userid;
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -92,31 +89,32 @@ public class MessageActivity extends AppCompatActivity {
 
 
         username = findViewById(R.id.toolbar_title);
-        btn_send = findViewById(R.id.btn_send);
-        text_send = findViewById(R.id.text_send);
+        sendBtn = findViewById(R.id.btn_send);
+        sendText = findViewById(R.id.text_send);
 
 
 
         intent = getIntent();
         String userid = intent.getStringExtra("userid");
 
-        btn_send.setOnClickListener(new View.OnClickListener() {
+        sendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 notify = true;
-                String msg = text_send.getText().toString();
+                String msg = sendText.getText().toString();
                 if (!msg.equals("")){
-                    sendMessage(fuser.getUid(), userid, msg);
+                    sendMessage(firebaseUser.getUid(), userid, msg);
                 } else {
                     Toast.makeText(MessageActivity.this, "Please enter message", Toast.LENGTH_SHORT).show();
                 }
-                text_send.setText("");
+
+                sendText.setText("");
             }
         });
 
 
 
-        fuser = FirebaseAuth.getInstance().getCurrentUser();
+        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
         DocumentReference docRef = db.collection("users").document(userid);
 
@@ -136,7 +134,7 @@ public class MessageActivity extends AppCompatActivity {
                     }
                 }
 
-                readMesagges(fuser.getUid(),userid);
+                readMesagges(firebaseUser.getUid(),userid);
             }
         });
 
@@ -157,21 +155,21 @@ public class MessageActivity extends AppCompatActivity {
     }
 
     private void readMesagges(final String myid, final String userid){
-        mchat = new ArrayList<>();
+        chatList = new ArrayList<>();
 
         reference = FirebaseDatabase.getInstance().getReference("Chats");
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                mchat.clear();
+                chatList.clear();
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()){
                     Chat chat = snapshot.getValue(Chat.class);
                     if (chat.getReceiver().equals(myid) && chat.getSender().equals(userid) ||
                             chat.getReceiver().equals(userid) && chat.getSender().equals(myid)){
-                        mchat.add(chat);
+                        chatList.add(chat);
                     }
 
-                    messageAdapter = new MessageAdapter(MessageActivity.this, mchat);
+                    messageAdapter = new MessageAdapter(MessageActivity.this, chatList);
                     recyclerView.setAdapter(messageAdapter);
                 }
             }
