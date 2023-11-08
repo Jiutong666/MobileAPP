@@ -55,6 +55,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
     private TextView markerDscrpTextView;
     private TextView markerDistanceView;
 
+    private TextView markerLikesView;
+
     private HashMap<String, MapItem> textsMap = new HashMap<>(); // 用来存储Text对象的HashMap
     private HashMap<String, MapItem> imagesMap = new HashMap<>();
     private HashMap<String, MapItem> videosMap = new HashMap<>();
@@ -76,7 +78,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
                         document.getDouble("latitude"),
                         document.getDouble("longitude"),
                         document.getString("title"),
-                        document.getString("userEmail")
+                        document.getString("userEmail"),
+                        document.getLong("likes")
                 );
                 // 将Text对象添加到HashMap中，以document的ID为键
                 textsMap.put(document.getId(), textMapItem);
@@ -89,7 +92,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
                         document.getDouble("latitude"),
                         document.getDouble("longitude"),
                         document.getString("title"),
-                        document.getString("userEmail")
+                        document.getString("userEmail"),
+                        document.getLong("likes")
                 );
                 imagesMap.put(document.getId(), imageItem);
                 break;
@@ -101,7 +105,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
                         document.getDouble("latitude"),
                         document.getDouble("longitude"),
                         document.getString("title"),
-                        document.getString("userEmail")
+                        document.getString("userEmail"),
+                        document.getLong("likes")
                 );
                 videosMap.put(document.getId(), videoItem);
                 break;
@@ -325,24 +330,29 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
             String markerType = marker.getTitle();
             String title;
             String content;
+            long likes;
             String id = (String) marker.getTag();
 
             switch (markerType) {
                 case "text":
                     title = textsMap.get(id).getTitle();
                     content = textsMap.get(id).getContent();
+                    likes = textsMap.get(id).getLikeNo();
                     break;
                 case "image":
                     title = imagesMap.get(id).getTitle();
                     content = imagesMap.get(id).getContent();
+                    likes = imagesMap.get(id).getLikeNo();
                     break;
                 case "video":
                     title = videosMap.get(id).getTitle();
                     content = videosMap.get(id).getContent();
+                    likes = videosMap.get(id).getLikeNo();
                     break;
                 default:
                     title = "null";
                     content = "null";
+                    likes = 0;
             }
 
             // 确保你在类中已经定义了currentLocation
@@ -373,6 +383,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
             markerDscrpTextView.setText(content);
             marker.showInfoWindow();
             markerDscrpTextView.setVisibility(View.VISIBLE);
+
+            markerLikesView.setText(String.valueOf(likes));
+            marker.showInfoWindow();
+            markerLikesView.setVisibility(View.VISIBLE);
+
 
             return false;
         });
@@ -440,6 +455,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
         markerTitleTextView = view.findViewById(R.id.marker_title);
         markerDscrpTextView = view.findViewById(R.id.marker_description);
         markerDistanceView = view.findViewById(R.id.distance_text);
+        markerLikesView = view.findViewById(R.id.likes);
 
         // 请确保getActivity()不会返回null
         Context context = getActivity();

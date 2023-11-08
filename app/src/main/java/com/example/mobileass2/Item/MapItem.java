@@ -10,13 +10,13 @@ public class MapItem {
     private String title;
     private String userEmail;
 
-    private int likeNo;
+    private long likeNo;
     private int viewNo;
     private int commentNo;
 
 
     // Constructor
-    public MapItem(String type, String content, double latitude, double longitude, String title, String userEmail) {
+    public MapItem(String type, String content, double latitude, double longitude, String title, String userEmail, long likes) {
         this.type = type;
         this.content = content;
 //        switch (type) {
@@ -33,6 +33,7 @@ public class MapItem {
         this.longitude = longitude;
         this.title = title;
         this.userEmail = userEmail;
+        this.likeNo = likes;
     }
 
     @Override
@@ -95,4 +96,7 @@ public class MapItem {
     public String getUserEmail() {
         return userEmail;
     }
+
+    public long getLikeNo() {return likeNo; }
+
 }
