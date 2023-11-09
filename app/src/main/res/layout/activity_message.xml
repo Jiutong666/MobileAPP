@@ -4,18 +4,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#e6e6e6"
-    tools:context=".MessageActivity">
+    android:background="@drawable/bg_gradient"
+    tools:context=".MessageActivity"
+    >
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/bar_layout"
         android:layout_width="match_parent"
+        android:background="@drawable/bg_gradient"
         android:layout_height="wrap_content">
+
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/bg_gradient"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
            >
 

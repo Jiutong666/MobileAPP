@@ -2,6 +2,7 @@ package com.example.mobileass2.Adapter;
 
 import android.content.Context;
 
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,10 +13,15 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 
+import com.bumptech.glide.Glide;
 import com.example.mobileass2.Model.Chat;
 import com.example.mobileass2.R;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 
 import java.util.List;
@@ -27,6 +33,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 
     private Context mContext;
     private List<Chat> mChat;
+
+    public FirebaseAuth firebaseAuth;
 
 
     FirebaseUser fuser;
@@ -51,12 +59,29 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(@NonNull MessageAdapter.ViewHolder holder, int position) {
-
         Chat chat = mChat.get(position);
-
         holder.show_message.setText(chat.getMessage());
+        firebaseAuth = FirebaseAuth.getInstance();
 
+        // 获取接收者的 userId
+        String userId = chat.getSender();
 
+        // 构建 Firebase Storage 中图片的路径
+        StorageReference storageReference = FirebaseStorage.getInstance().getReference()
+                .child("users/" + userId + "/profile.jpg");
+
+        // 使用 Glide 加载图片
+        storageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                Glide.with(mContext).load(uri).into(holder.profile_image);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                holder.profile_image.setImageResource(R.mipmap.ic_launcher);
+            }
+        });
 
     }
 

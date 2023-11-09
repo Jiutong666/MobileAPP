@@ -38,6 +38,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 
 public class MessageActivity extends AppCompatActivity {
 
@@ -60,6 +62,9 @@ public class MessageActivity extends AppCompatActivity {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     boolean notify = false;
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,9 +98,11 @@ public class MessageActivity extends AppCompatActivity {
         sendText = findViewById(R.id.text_send);
 
 
-
         intent = getIntent();
         String userid = intent.getStringExtra("userid");
+
+
+
 
         sendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -117,7 +124,6 @@ public class MessageActivity extends AppCompatActivity {
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
         DocumentReference docRef = db.collection("users").document(userid);
-
 
 
         docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
@@ -154,7 +160,7 @@ public class MessageActivity extends AppCompatActivity {
 
     }
 
-    private void readMesagges(final String myid, final String userid){
+    private void readMesagges(final String myId, final String userid){
         chatList = new ArrayList<>();
 
         reference = FirebaseDatabase.getInstance().getReference("Chats");
@@ -164,8 +170,8 @@ public class MessageActivity extends AppCompatActivity {
                 chatList.clear();
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()){
                     Chat chat = snapshot.getValue(Chat.class);
-                    if (chat.getReceiver().equals(myid) && chat.getSender().equals(userid) ||
-                            chat.getReceiver().equals(userid) && chat.getSender().equals(myid)){
+                    if (chat.getReceiver().equals(myId) && chat.getSender().equals(userid) ||
+                            chat.getReceiver().equals(userid) && chat.getSender().equals(myId)){
                         chatList.add(chat);
                     }
 
