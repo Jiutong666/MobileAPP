@@ -142,9 +142,9 @@ public class ProfileFragment extends Fragment {
                     email.setText(userEmail);
                     username.setText(userName);
 
-                    findTextsByEmail("jan@email.com");
-                    findImagesByEmail("jan@email.com");
-                    findVideosByEmail("jan@email.com");
+                    findTextsByEmail(userEmail);
+                    findImagesByEmail(userEmail);
+                    findVideosByEmail(userEmail);
 
                 }
 
