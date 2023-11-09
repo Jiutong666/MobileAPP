@@ -65,10 +65,10 @@ public class ProfileFragment extends Fragment {
     public RecyclerView recyclerImage;
 
     public RecyclerView recyclerVideo;
-    public List<String> titlesList;
-    public List<String> imageList;
+    public List<Data> titlesList;
+    public List<Data> imageList;
 
-    public List<String> videoList;
+    public List<Data> videoList;
 
     public ImageView imageView;
 
@@ -221,7 +221,11 @@ public class ProfileFragment extends Fragment {
                                     DocumentSnapshot titleDoc = titleTask.getResult();
                                     if (titleDoc.exists() && titleDoc.contains("title")) {
                                         String title = titleDoc.getString("title");
-                                        titlesList.add(title); // 将标题添加到列表中
+                                        Data data = new Data();
+                                        data.setId(id); // Here you set the document's ID
+                                        data.setType("texts");
+                                        data.re_title = title;
+                                        titlesList.add(data); // 将标题添加到列表中
 
                                         // 更新数据后，重新初始化RecyclerView的数据
                                         if (getActivity() != null) {
@@ -250,7 +254,11 @@ public class ProfileFragment extends Fragment {
                                     DocumentSnapshot titleDoc = titleTask.getResult();
                                     if (titleDoc.exists() && titleDoc.contains("title")) {
                                         String title = titleDoc.getString("title");
-                                        imageList.add(title); // 将标题添加到列表中
+                                        Data data = new Data();
+                                        data.setId(id); // Here you set the document's ID
+                                        data.setType("images");
+                                        data.re_title = title;
+                                        imageList.add(data);
 
                                         // 更新数据后，重新初始化RecyclerView的数据
                                         if (getActivity() != null) {
@@ -279,7 +287,11 @@ public class ProfileFragment extends Fragment {
                                     DocumentSnapshot titleDoc = titleTask.getResult();
                                     if (titleDoc.exists() && titleDoc.contains("title")) {
                                         String title = titleDoc.getString("title");
-                                        videoList.add(title); // 将标题添加到列表中
+                                        Data data = new Data();
+                                        data.setId(id); // Here you set the document's ID
+                                        data.setType("videos");
+                                        data.re_title = title;
+                                        videoList.add(data);
 
                                         // 更新数据后，重新初始化RecyclerView的数据
                                         if (getActivity() != null) {
@@ -293,38 +305,43 @@ public class ProfileFragment extends Fragment {
                 });
     }
 
+
     public void testData() {
         mdata.clear();
-        for (String title : titlesList) {
-            Data data = new Data();
-            data.re_title = title;
-            mdata.add(data);
-        }
+        mdata.addAll(titlesList);  // Since titlesList already contains Data objects, you can add all at once.
 
-
+        // Check if the adapter is not already set then set a new one; otherwise, notify the adapter about the dataset changed.
         if (recyclerTest.getAdapter() == null) {
             LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
             recyclerTest.setLayoutManager(layoutManager);
-            ListAdapter adapter = new ListAdapter(mdata);
+            ListAdapter adapter = new ListAdapter(mdata, this::deleteItemFromFirestore, (type, id) -> {
+                // Implement your detail viewing logic here
+                // For example, start a new Activity with the ID passed as an extra
+                Intent detailIntent = new Intent(getActivity(), DisplayTextActivity.class);
+                detailIntent.putExtra("PACKAGE_ID", id);
+                getActivity().startActivity(detailIntent);
+            });
             recyclerTest.setAdapter(adapter);
         } else {
-
             recyclerTest.getAdapter().notifyDataSetChanged();
         }
     }
 
     public void imageData() {
         idata.clear();
-        for (String title : imageList) {
-            Data data = new Data();
-            data.re_title = title;
-            idata.add(data);
-        }
+        idata.addAll(imageList); // Add all elements from imageList to idata.
 
+        // Check if the adapter is not already set then set a new one; otherwise, notify the adapter about the dataset changed.
         if (recyclerImage.getAdapter() == null) {
             LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
             recyclerImage.setLayoutManager(layoutManager);
-            ListAdapter adapter = new ListAdapter(idata);
+            ListAdapter adapter = new ListAdapter(idata, this::deleteItemFromFirestore,(type, id) -> {
+                // Implement your detail viewing logic here
+                // For example, start a new Activity with the ID passed as an extra
+                Intent detailIntent = new Intent(getActivity(), DisplayImageActivity.class);
+                detailIntent.putExtra("PACKAGE_ID", id);
+                getActivity().startActivity(detailIntent);
+            });
             recyclerImage.setAdapter(adapter);
         } else {
             recyclerImage.getAdapter().notifyDataSetChanged();
@@ -333,20 +350,32 @@ public class ProfileFragment extends Fragment {
 
     public void videoData() {
         vdata.clear();
-        for (String title : videoList) {
-            Data data = new Data();
-            data.re_title = title;
-            vdata.add(data);
-        }
+        vdata.addAll(videoList); // Add all elements from videoList to vdata.
 
+        // Check if the adapter is not already set then set a new one; otherwise, notify the adapter about the dataset changed.
         if (recyclerVideo.getAdapter() == null) {
             LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
             recyclerVideo.setLayoutManager(layoutManager);
-            ListAdapter adapter = new ListAdapter(vdata);
+            ListAdapter adapter = new ListAdapter(vdata, this::deleteItemFromFirestore, (type, id) -> {
+                // Implement your detail viewing logic here
+                // For example, start a new Activity with the ID passed as an extra
+                Intent detailIntent = new Intent(getActivity(), DisplayVideoActivity.class);
+                detailIntent.putExtra("PACKAGE_ID", id);
+                getActivity().startActivity(detailIntent);
+            } );
             recyclerVideo.setAdapter(adapter);
         } else {
             recyclerVideo.getAdapter().notifyDataSetChanged();
         }
     }
+
+    private void deleteItemFromFirestore(String collectionName, String documentId) {
+        fireStore.collection(collectionName).document(documentId)
+                .delete()
+                .addOnSuccessListener(aVoid -> Log.d("Delete", "DocumentSnapshot successfully deleted!"))
+                .addOnFailureListener(e -> Log.w("Delete", "Error deleting document", e));
+    }
+
+
 
 }

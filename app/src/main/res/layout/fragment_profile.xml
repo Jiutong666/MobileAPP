@@ -45,6 +45,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@id/email_text"
             android:layout_marginEnd="8dp"
+            android:layout_marginTop="16dp"
             android:text="Your email:"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             android:textStyle="bold" />
