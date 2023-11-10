@@ -41,7 +41,7 @@ A step-by-step series of examples that tell you how to get a development environ
 
 1. **Clone the Repository**
     ```bash
-    git clone [repository link]
+    git clone https://github.com/Jiutong666/MobileAPP.git
     ```
 
 2. **Open the Project in Android Studio**
@@ -57,9 +57,6 @@ A step-by-step series of examples that tell you how to get a development environ
 5. **Running the App**
     - Connect an Android device or use the Android emulator.
     - Run the app by clicking on the 'Run' button in Android Studio.
-
-6. **Additional Configuration**
-    - [Any additional steps required for your application, e.g., setting up Firebase, adding API keys]
 
 
 
