@@ -48,7 +48,13 @@
             android:layout_marginTop="16dp"
             android:text="Your email:"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textStyle="bold" />
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:shadowColor="#66000000"
+            android:shadowDx="4"
+            android:shadowDy="4"
+            android:shadowRadius="2"/>
 
         <TextView
             android:id="@+id/email_text"
@@ -72,7 +78,13 @@
             android:layout_marginEnd="8dp"
             android:text="Username:"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textStyle="bold" />
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:shadowColor="#66000000"
+            android:shadowDx="4"
+            android:shadowDy="4"
+            android:shadowRadius="2"/>
 
         <TextView
             android:id="@+id/username_text"
@@ -103,9 +115,13 @@
             android:layout_marginTop="24dp"
             android:gravity="center_horizontal"
             android:text="Text packages"
-            android:textColor="#DE000000"
-            android:textSize="18sp"
-            android:textStyle="normal"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:shadowColor="#66000000"
+            android:shadowDx="4"
+            android:shadowDy="4"
+            android:shadowRadius="2"
             app:layout_constraintTop_toBottomOf="@id/username_text"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
@@ -140,9 +156,13 @@
             android:layout_marginTop="16dp"
             android:gravity="center_horizontal"
             android:text="Image Packages"
-            android:textColor="#DE000000"
-            android:textSize="18sp"
-            android:textStyle="normal"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:shadowColor="#66000000"
+            android:shadowDx="4"
+            android:shadowDy="4"
+            android:shadowRadius="2"
             app:layout_constraintTop_toBottomOf="@id/textTitle"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
@@ -177,9 +197,13 @@
             android:layout_marginTop="16dp"
             android:gravity="center_horizontal"
             android:text="Video Packages"
-            android:textColor="#DE000000"
-            android:textSize="18sp"
-            android:textStyle="normal"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:shadowColor="#66000000"
+            android:shadowDx="4"
+            android:shadowDy="4"
+            android:shadowRadius="2"
             app:layout_constraintTop_toBottomOf="@id/imageTitle"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />

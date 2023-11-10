@@ -45,13 +45,22 @@
 
                 <ImageButton
                     android:id="@+id/buttonLike"
-                    android:layout_width="48dp"
+                    android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:background="@null"
                     android:contentDescription="@string/description_like_button"
                     android:padding="8dp"
                     android:scaleType="centerInside"
-                    android:src="@drawable/like" />
+                    android:src="@drawable/new_like" />
+
+                <ImageButton
+                    android:id="@+id/buttonChat"
+                    android:layout_width="match_parent"
+                    android:layout_height="49dp"
+                    android:background="@null"
+                    android:padding="8dp"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/chat" />
             </LinearLayout>
 
             <LinearLayout
@@ -65,6 +74,7 @@
                     android:id="@+id/textViewUsername"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:paddingBottom="5dp"
                     android:text="Username"
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                     android:textSize="16sp" />

@@ -62,6 +62,8 @@ public class DisplayImageActivity extends AppCompatActivity implements OnMapRead
     private DocumentReference textRef;
     private boolean isLikedByCurrentUser; //track if a user liked a post
 
+    private ImageButton chatButton;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +83,15 @@ public class DisplayImageActivity extends AppCompatActivity implements OnMapRead
         commentEditText = findViewById(R.id.editTextComment);
         buttonBack = findViewById(R.id.buttonBack);
         buttonHome = findViewById(R.id.buttonHome);
+        chatButton = findViewById(R.id.buttonChat);
+
+        chatButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openChat();
+            }
+        });
+
         noCommentsTextView = findViewById(R.id.noCommentsTextView);
 
         fireStore = FirebaseFirestore.getInstance();
@@ -104,6 +115,8 @@ public class DisplayImageActivity extends AppCompatActivity implements OnMapRead
                 toggleLikeStatus();
             }
         });
+
+
 
         buttonSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -200,7 +213,7 @@ public class DisplayImageActivity extends AppCompatActivity implements OnMapRead
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         isLikedByCurrentUser = !task.getResult().isEmpty();
-                        buttonLike.setImageResource(isLikedByCurrentUser ? R.drawable.liked : R.drawable.like);
+                        buttonLike.setImageResource(isLikedByCurrentUser ? R.drawable.new_liked : R.drawable.new_like);
                     }
                 });
         // Fetch comments of the package
@@ -359,7 +372,7 @@ public class DisplayImageActivity extends AppCompatActivity implements OnMapRead
                     });
         }
         isLikedByCurrentUser = !isLikedByCurrentUser;
-        buttonLike.setImageResource(isLikedByCurrentUser ? R.drawable.liked : R.drawable.like);
+        buttonLike.setImageResource(isLikedByCurrentUser ? R.drawable.new_liked : R.drawable.new_like);
     }
 
     private void submitComment() {
@@ -382,6 +395,27 @@ public class DisplayImageActivity extends AppCompatActivity implements OnMapRead
                     Toast.makeText(this, "Error posting comment", Toast.LENGTH_SHORT).show();
                     });
         }
+    }
+
+    private void openChat() {
+        packageId = getIntent().getStringExtra("PACKAGE_ID");
+        // Fetch package details...
+        fireStore.collection("images").document(packageId)
+                .get()
+                .addOnSuccessListener(document -> {
+                    if (document.exists()) {
+                        textRef = fireStore.collection("images").document(packageId);
+                        ;
+
+                        String userId = document.getString("userId");
+                        Intent intent = new Intent(this, MessageActivity.class);
+                        intent.putExtra("userid", userId);
+                        startActivity(intent);
+
+                        // Fetch the username from the firebase
+                    }
+                });
+
     }
 
     @Override

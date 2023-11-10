@@ -65,6 +65,8 @@ public class DisplayTextActivity extends AppCompatActivity implements OnMapReady
     private DocumentReference textRef;
     private boolean isLikedByCurrentUser; //track if a user liked a post
 
+    private ImageButton chatButton;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +87,16 @@ public class DisplayTextActivity extends AppCompatActivity implements OnMapReady
         buttonBack = findViewById(R.id.buttonBack);
         buttonHome = findViewById(R.id.buttonHome);
         noCommentsTextView = findViewById(R.id.noCommentsTextView);
+
+        chatButton = findViewById(R.id.buttonChat);
+
+        chatButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openChat();
+            }
+        });
+
 
         fireStore = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
@@ -197,7 +209,7 @@ public class DisplayTextActivity extends AppCompatActivity implements OnMapReady
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         isLikedByCurrentUser = !task.getResult().isEmpty();
-                        buttonLike.setImageResource(isLikedByCurrentUser ? R.drawable.liked : R.drawable.like);
+                        buttonLike.setImageResource(isLikedByCurrentUser ? R.drawable.new_liked : R.drawable.new_like);
                     }
                 });
         // Fetch comments of the package
@@ -356,7 +368,7 @@ public class DisplayTextActivity extends AppCompatActivity implements OnMapReady
                     });
         }
         isLikedByCurrentUser = !isLikedByCurrentUser;
-        buttonLike.setImageResource(isLikedByCurrentUser ? R.drawable.liked : R.drawable.like);
+        buttonLike.setImageResource(isLikedByCurrentUser ? R.drawable.new_liked : R.drawable.new_like);
     }
 
     private void submitComment() {
@@ -379,6 +391,27 @@ public class DisplayTextActivity extends AppCompatActivity implements OnMapReady
                     Toast.makeText(this, "Error posting comment", Toast.LENGTH_SHORT).show();
                     });
         }
+    }
+
+    private void openChat() {
+        packageId = getIntent().getStringExtra("PACKAGE_ID");
+        // Fetch package details...
+        fireStore.collection("texts").document(packageId)
+                .get()
+                .addOnSuccessListener(document -> {
+                    if (document.exists()) {
+                        textRef = fireStore.collection("texts").document(packageId);
+                        ;
+
+                        String userId = document.getString("userId");
+                        Intent intent = new Intent(this, MessageActivity.class);
+                        intent.putExtra("userid", userId);
+                        startActivity(intent);
+
+                        // Fetch the username from the firebase
+                    }
+                });
+
     }
 
     @Override

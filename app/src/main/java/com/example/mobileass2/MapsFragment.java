@@ -318,12 +318,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-
         Log.d(TAG, "Map is ready");
         mMap = googleMap;
-        LatLng sydney = new LatLng(37.4219983, -122.084);
-        float zoomLevel = 10.0f; // 设置缩放级别为15
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, zoomLevel));
+        LatLng loc = new LatLng(-37.7996, 144.9612);
+        float zoomLevel = 12.0f; // 设置缩放级别为15
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(loc, zoomLevel));
 
         mMap.setOnMarkerClickListener(marker -> {
             // 每当marker被点击时，检查并更新浮动窗口的可见性
