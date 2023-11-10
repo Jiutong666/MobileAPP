@@ -219,7 +219,6 @@ public class DisplayTextActivity extends AppCompatActivity implements OnMapReady
     private void fetchAvatarImage(String userId) {
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageRef = storage.getReference();
-        Toast.makeText(this, userId, Toast.LENGTH_SHORT).show();
         // Assuming your images are stored in a folder named 'avatars' in Firebase Storage
         StorageReference avatarRef = storageRef.child("users/" + userId + "/profile.jpg");
 

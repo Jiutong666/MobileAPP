@@ -158,7 +158,6 @@ public class DisplayImageActivity extends AppCompatActivity implements OnMapRead
     private void fetchDataFromFirebase() {
         // Assuming the document ID or package ID is passed as an extra
         packageId = getIntent().getStringExtra("PACKAGE_ID");
-        Toast.makeText(this, packageId, Toast.LENGTH_SHORT).show();
 
         // Fetch package details...
         fireStore.collection("images").document(packageId)
@@ -238,7 +237,6 @@ public class DisplayImageActivity extends AppCompatActivity implements OnMapRead
     private void fetchAvatarImage(String userId) {
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageRef = storage.getReference();
-        Toast.makeText(this, userId, Toast.LENGTH_SHORT).show();
         // Assuming your images are stored in a folder named 'avatars' in Firebase Storage
         StorageReference avatarRef = storageRef.child("users/" + userId + "/profile.jpg");
 
