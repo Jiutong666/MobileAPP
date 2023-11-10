@@ -14,14 +14,14 @@
 5. Bingqing Zhang - 1377017
 
 ### YouTube Link
-[YouTube Demonstration Link]
+[YouTube Demonstration Link] !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!UPATE
 
 ### Publicity Statement
 We authorise the University of Melbourne to use material from our submission for publicity purposes.
 
 ## About Echos
 
-[Provide a brief description of what your application does, its features, and its intended use case.]
+Echos is a mobile application designed for travelers and adventure enthusiasts to share and relive their journey experiences. Leveraging Firebase Cloud Database and Google Maps API, Echos offers a platform for users to create multimedia "packages" of their travel memories, categorized into three distinct types. These geotagged packages, comprising photos, videos, and stories, can be shared with a community of like-minded users. The app encourages social interaction through likes, comments, and direct messaging, fostering a global network of travelers. Echos not only serves as a digital diary for travel memories but also as a tool for users to connect, explore new places, and form lasting friendships. Whether you're an experienced traveler or a casual explorer, Echos enhances your journey with rich storytelling and social connectivity.
 
 ## Getting Started
 
