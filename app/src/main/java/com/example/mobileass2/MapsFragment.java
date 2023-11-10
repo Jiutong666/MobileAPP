@@ -45,7 +45,7 @@ import java.util.List;
 import java.util.Locale;
 
 import android.Manifest;
-
+import android.widget.Toast;
 
 
 public class MapsFragment extends Fragment implements OnMapReadyCallback{
@@ -72,6 +72,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
 
     private String idToTrans;
     private String typeToTrans;
+
+    private float lastClickedMarkerDistance = 0;
 
     // 第一次从数据库读取全部数据
     public void writeInItem(QueryDocumentSnapshot document, String itemType) {
@@ -370,6 +372,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
                 float distanceInMeters = results[0];
                 float distanceInKilometers = distanceInMeters / 1000;
                 String distanceText = String.format(Locale.getDefault(), "%.2f km", distanceInKilometers);
+                lastClickedMarkerDistance = distanceInKilometers;
                 markerDistanceView.setText(distanceText);
                 marker.showInfoWindow(); // 显示信息窗口
                 markerDistanceView.setVisibility(View.VISIBLE); // 显示悬浮窗
@@ -488,6 +491,12 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
         showDetail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                if (lastClickedMarkerDistance > 50) {
+                    // Show an error message if the distance is more than 50 km
+                    Toast.makeText(getActivity(), "The location is too far (more than 50 km away).", Toast.LENGTH_LONG).show();
+                    return; // Do not proceed further
+                }
 
                 switch (typeToTrans){
                     case "text":
