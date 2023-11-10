@@ -175,7 +175,6 @@ public class DisplayImageActivity extends AppCompatActivity implements OnMapRead
 
             if (!TextUtils.isEmpty(imageUrl)) {
                 // Load the image using image loading library
-                Toast.makeText(this, "Fetch image!", Toast.LENGTH_SHORT).show();
                 Picasso.get().load(imageUrl).into(imageContent);
             }
 

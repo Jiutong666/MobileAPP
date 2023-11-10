@@ -91,22 +91,12 @@
             android:text="Content"
             android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
-        <TextView
-            android:id="@+id/marker_description"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/marker_title"
-            android:layout_alignParentStart="true"
-            android:layout_marginStart="15dp"
-            android:layout_marginTop="8dp"
-            android:text="description"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small" />
 
         <LinearLayout
             android:id="@+id/distance_rating_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/marker_description"
+            android:layout_below="@+id/marker_title"
             android:layout_alignParentStart="true"
             android:layout_marginStart="10dp"
             android:layout_marginTop="10dp"
