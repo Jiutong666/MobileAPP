@@ -14,6 +14,10 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.mobileass2.databinding.ActivityMainBinding;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MainActivity extends AppCompatActivity {
     ActivityMainBinding binding;
@@ -29,7 +33,9 @@ public class MainActivity extends AppCompatActivity {
                 replaceFragment(new HomeFragment());
             } else if (id == R.id.map) {
                 replaceFragment(new MapsFragment());
-            } else if (id == R.id.profile) {
+            } else if (id == R.id.user) {
+                replaceFragment(new UsersFragment());
+            }else if (id == R.id.profile) {
                 replaceFragment(new ProfileFragment());
             }
 
@@ -45,6 +51,8 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.commit();
 
     }
+
+
 
 
 }

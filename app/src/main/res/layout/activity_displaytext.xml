@@ -11,8 +11,8 @@
     <fragment
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
-        android:layout_width="match_parent"
-        android:layout_height="248dp"
+        android:layout_width="372dp"
+        android:layout_height="190dp"
         android:layout_marginBottom="16dp" />
 
     <!-- User Profile Section with CardView -->
@@ -26,25 +26,15 @@
         <LinearLayout
             android:id="@+id/textViewContent"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:padding="16dp">
 
             <ImageView
                 android:id="@+id/imageViewAvatar"
-                android:layout_width="58dp"
-                android:layout_height="58dp"
+                android:layout_width="89dp"
+                android:layout_height="98dp"
                 android:src="@drawable/baseline_person_24" />
-
-            <ImageButton
-                android:id="@+id/buttonLike"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="@null"
-                android:contentDescription="@string/description_like_button"
-                android:padding="8dp"
-                android:scaleType="centerInside"
-                android:src="@drawable/like" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -62,13 +52,38 @@
 
                 <TextView
                     android:id="@+id/textViewComment"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_width="193dp"
+                    android:layout_height="74dp"
                     android:text="Content here..."
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
             </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <ImageButton
+                    android:id="@+id/buttonLike"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@null"
+                    android:contentDescription="@string/description_like_button"
+                    android:padding="8dp"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/new_like" />
+
+                <ImageButton
+                    android:id="@+id/buttonChat"
+                    android:layout_width="48dp"
+                    android:layout_height="49dp"
+                    android:src="@drawable/chat"
+                    android:padding="8dp"
+                    android:scaleType="centerInside" />
+            </LinearLayout>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
+
 
     <!-- Comments Section with fixed height -->
     <LinearLayout
@@ -132,7 +147,7 @@
 
         <Button
             android:id="@+id/buttonBack"
-
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"

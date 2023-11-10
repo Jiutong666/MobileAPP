@@ -1,8 +1,11 @@
 package com.example.mobileass2;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -15,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -22,12 +26,16 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -54,6 +62,8 @@ public class DisplayImageActivity extends AppCompatActivity implements OnMapRead
     private DocumentReference textRef;
     private boolean isLikedByCurrentUser; //track if a user liked a post
 
+    private ImageButton chatButton;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +83,15 @@ public class DisplayImageActivity extends AppCompatActivity implements OnMapRead
         commentEditText = findViewById(R.id.editTextComment);
         buttonBack = findViewById(R.id.buttonBack);
         buttonHome = findViewById(R.id.buttonHome);
+        chatButton = findViewById(R.id.buttonChat);
+
+        chatButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openChat();
+            }
+        });
+
         noCommentsTextView = findViewById(R.id.noCommentsTextView);
 
         fireStore = FirebaseFirestore.getInstance();
@@ -96,6 +115,8 @@ public class DisplayImageActivity extends AppCompatActivity implements OnMapRead
                 toggleLikeStatus();
             }
         });
+
+
 
         buttonSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -150,7 +171,8 @@ public class DisplayImageActivity extends AppCompatActivity implements OnMapRead
             String imageUrl = document.getString("imageUrl");
             double latitude = document.getDouble("latitude");
             double longitude = document.getDouble("longitude");
-            String userId = auth.getCurrentUser().getUid();
+            String userId = document.getString("userId");
+            fetchAvatarImage(userId);
 
             if (!TextUtils.isEmpty(imageUrl)) {
                 // Load the image using image loading library
@@ -191,7 +213,7 @@ public class DisplayImageActivity extends AppCompatActivity implements OnMapRead
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         isLikedByCurrentUser = !task.getResult().isEmpty();
-                        buttonLike.setImageResource(isLikedByCurrentUser ? R.drawable.liked : R.drawable.like);
+                        buttonLike.setImageResource(isLikedByCurrentUser ? R.drawable.new_liked : R.drawable.new_like);
                     }
                 });
         // Fetch comments of the package
@@ -211,6 +233,31 @@ public class DisplayImageActivity extends AppCompatActivity implements OnMapRead
                 .addOnFailureListener(e -> {
                     callback.onError("User not exist.");
                 });
+    }
+
+    private void fetchAvatarImage(String userId) {
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference storageRef = storage.getReference();
+        Toast.makeText(this, userId, Toast.LENGTH_SHORT).show();
+        // Assuming your images are stored in a folder named 'avatars' in Firebase Storage
+        StorageReference avatarRef = storageRef.child("users/" + userId + "/profile.jpg");
+
+        // Download directly into ImageView
+        avatarRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                // Use Glide or Picasso to load the image
+                Glide.with(userAvatar.getContext())
+                        .load(uri)
+                        .into(userAvatar);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // Handle any errors
+                Log.e("Firebase", "Error fetching avatar", exception);
+            }
+        });
     }
 
     private void fetchCommentsFromFirebase() {
@@ -325,7 +372,7 @@ public class DisplayImageActivity extends AppCompatActivity implements OnMapRead
                     });
         }
         isLikedByCurrentUser = !isLikedByCurrentUser;
-        buttonLike.setImageResource(isLikedByCurrentUser ? R.drawable.liked : R.drawable.like);
+        buttonLike.setImageResource(isLikedByCurrentUser ? R.drawable.new_liked : R.drawable.new_like);
     }
 
     private void submitComment() {
@@ -348,6 +395,27 @@ public class DisplayImageActivity extends AppCompatActivity implements OnMapRead
                     Toast.makeText(this, "Error posting comment", Toast.LENGTH_SHORT).show();
                     });
         }
+    }
+
+    private void openChat() {
+        packageId = getIntent().getStringExtra("PACKAGE_ID");
+        // Fetch package details...
+        fireStore.collection("images").document(packageId)
+                .get()
+                .addOnSuccessListener(document -> {
+                    if (document.exists()) {
+                        textRef = fireStore.collection("images").document(packageId);
+                        ;
+
+                        String userId = document.getString("userId");
+                        Intent intent = new Intent(this, MessageActivity.class);
+                        intent.putExtra("userid", userId);
+                        startActivity(intent);
+
+                        // Fetch the username from the firebase
+                    }
+                });
+
     }
 
     @Override

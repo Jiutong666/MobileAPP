@@ -118,17 +118,6 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
 
-
-        //跳转到登录页面
-        textViewLogin= findViewById(R.id.loginUser);
-        textViewLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent();
-                intent.setClass(RegisterActivity.this ,LoginActivity.class);
-                startActivity(intent);
-            }
-        });
     }
 
     public void registerUser(String email, String password,String username){
@@ -136,12 +125,16 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if(task.isSuccessful()){
-                    Toast.makeText(RegisterActivity.this, "User is Created", Toast.LENGTH_SHORT).show();
                     userID= firebaseAuth.getUid();
                     DocumentReference documentReference = fireStore.collection("users").document(userID);
                     Map<String,Object> user = new HashMap<>();
                     user.put("username",username);
+                    user.put("email",email);
                     documentReference.set(user);
+
+                    Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
+                    startActivity(intent);
+
 
                 }else {
                     Toast.makeText(RegisterActivity.this, "Error", Toast.LENGTH_SHORT).show();
