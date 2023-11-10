@@ -4,14 +4,14 @@
 
 ### Group Details
 
-**Group No:** [Tutorial 12- Group 4]
+**Group No:** Tutorial 12- Group 4
 
 **Group Members:**
-1. [Yuncong Ji - 1373110]
-2. [Lin Duan - 1351342]
-3. [Lingyi Kong - 1397061]
-4. [Xin Xiang - 1294725]
-5. [Bingqing Zhang - 1377017]
+1. Yuncong Ji - 1373110
+2. Lin Duan - 1351342
+3. Lingyi Kong - 1397061
+4. Xin Xiang - 1294725
+5. Bingqing Zhang - 1377017
 
 ### YouTube Link
 [YouTube Demonstration Link]
