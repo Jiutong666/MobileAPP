@@ -453,7 +453,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback{
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         markerTitleTextView = view.findViewById(R.id.marker_title);
-        markerDscrpTextView = view.findViewById(R.id.marker_description);
         markerDistanceView = view.findViewById(R.id.distance_text);
         likesNum = view.findViewById(R.id.likes);
 
