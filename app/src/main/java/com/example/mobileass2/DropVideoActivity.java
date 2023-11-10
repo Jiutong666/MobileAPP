@@ -136,7 +136,6 @@ public class DropVideoActivity extends AppCompatActivity implements OnMapReadyCa
             String title = titleEditText.getText().toString().trim();
 
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                // Ask for location permissions if they're not granted or handle it accordingly.
                 Toast.makeText(DropVideoActivity.this, "Location permissions not granted.", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -149,6 +148,8 @@ public class DropVideoActivity extends AppCompatActivity implements OnMapReadyCa
 
                     // Prepare the data to be saved
                     Map<String, Object> docData = new HashMap<>();
+                    String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                    docData.put("userId", userId);
                     docData.put("title", title);
                     docData.put("videoUrl", videoURL);
                     docData.put("latitude", latitude);
@@ -157,38 +158,25 @@ public class DropVideoActivity extends AppCompatActivity implements OnMapReadyCa
                     docData.put("likes", 0);
 
                     // Save to Firestore
-                    fireStore.collection("videos").document().set(docData)
-                            .addOnSuccessListener(new OnSuccessListener<Void>() { // Use Void here
-                                @Override
-                                public void onSuccess(Void aVoid) { // No parameter is passed here
-                                    Toast.makeText(DropVideoActivity.this, "video and data stored successfully", Toast.LENGTH_SHORT).show();
-                                    startLocationUpdates(); // Place marker on map after upload
+                    DocumentReference newDocRef = fireStore.collection("videos").document();
+                    newDocRef.set(docData)
+                            .addOnSuccessListener(aVoid -> {
+                                Toast.makeText(DropVideoActivity.this, "Video and data stored successfully", Toast.LENGTH_SHORT).show();
+                                startLocationUpdates(); // Place marker on map after upload
 
-                                    // Since we don't get the DocumentReference directly, we need to save it before calling set.
-                                    DocumentReference newDocRef = fireStore.collection("videos").document();
-                                    newDocRef.set(docData).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            // Get the ID of the created document
-                                            String packageId = newDocRef.getId();
-                                            // Send the ID to MainActivity and start it
-                                            Intent intent = new Intent(DropVideoActivity.this, DisplayVideoActivity.class);
-                                            intent.putExtra("PACKAGE_ID", packageId); // Pass the ID as an extra
-                                            startActivity(intent);
-                                        }
-                                    });
-                                }
+                                // Get the ID of the created document
+                                String packageId = newDocRef.getId();
+                                // Send the ID to MainActivity and start it
+                                Intent intent = new Intent(DropVideoActivity.this, DisplayVideoActivity.class);
+                                intent.putExtra("PACKAGE_ID", packageId); // Pass the ID as an extra
+                                startActivity(intent);
                             })
                             .addOnFailureListener(e -> Toast.makeText(DropVideoActivity.this, "Error storing data", Toast.LENGTH_SHORT).show());
                 } else {
                     Toast.makeText(DropVideoActivity.this, "Unable to fetch location", Toast.LENGTH_SHORT).show();
                 }
-            }).addOnFailureListener(exception -> {
-                Toast.makeText(DropVideoActivity.this, "Location fetch failed: " + exception.getMessage(), Toast.LENGTH_LONG).show();
-            });
-        })).addOnFailureListener(exception -> {
-            Toast.makeText(DropVideoActivity.this, "Upload failed: " + exception.getMessage(), Toast.LENGTH_LONG).show();
-        });
+            }).addOnFailureListener(exception -> Toast.makeText(DropVideoActivity.this, "Location fetch failed: " + exception.getMessage(), Toast.LENGTH_LONG).show());
+        })).addOnFailureListener(exception -> Toast.makeText(DropVideoActivity.this, "Upload failed: " + exception.getMessage(), Toast.LENGTH_LONG).show());
     }
 
 

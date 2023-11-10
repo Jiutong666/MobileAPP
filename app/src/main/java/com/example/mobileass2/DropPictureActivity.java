@@ -151,16 +151,12 @@ public class DropPictureActivity extends AppCompatActivity implements OnMapReady
 
                 String title = titleEditText.getText().toString().trim();
 
+                // Check and request location permissions if not granted
                 if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
                     return;
                 }
+
                 fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
                     if (location != null) {
                         double latitude = location.getLatitude();
@@ -169,6 +165,8 @@ public class DropPictureActivity extends AppCompatActivity implements OnMapReady
 
                         // Prepare the data to be saved
                         Map<String, Object> docData = new HashMap<>();
+                        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                        docData.put("userId", userId);
                         docData.put("title", title);
                         docData.put("imageUrl", imageURL);
                         docData.put("latitude", latitude);
@@ -177,41 +175,31 @@ public class DropPictureActivity extends AppCompatActivity implements OnMapReady
                         docData.put("likes", 0);
 
                         // Save to Firestore
-                        fireStore.collection("images").document().set(docData)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() { // Use Void here
-                                    @Override
-                                    public void onSuccess(Void aVoid) { // No parameter is passed here
-                                        Toast.makeText(DropPictureActivity.this, "Image and data stored successfully", Toast.LENGTH_SHORT).show();
-                                        startLocationUpdates(); // Place marker on map after upload
+                        DocumentReference newDocRef = fireStore.collection("images").document();
+                        newDocRef.set(docData)
+                                .addOnSuccessListener(aVoid -> {
+                                    Toast.makeText(DropPictureActivity.this, "Image and data stored successfully", Toast.LENGTH_SHORT).show();
+                                    startLocationUpdates(); // Optional: update location
 
-                                        // Since we don't get the DocumentReference directly, we need to save it before calling set.
-                                        DocumentReference newDocRef = fireStore.collection("images").document();
-                                        newDocRef.set(docData).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-                                                // Get the ID of the created document
-                                                String packageId = newDocRef.getId();
-                                                // Send the ID to MainActivity and start it
-                                                Intent intent = new Intent(DropPictureActivity.this, DisplayImageActivity.class);
-                                                intent.putExtra("PACKAGE_ID", packageId); // Pass the ID as an extra
-                                                startActivity(intent);
-                                            }
-                                        });
-                                    }
+                                    // Get the ID of the created document
+                                    String packageId = newDocRef.getId();
+                                    // Send the ID to another activity (optional)
+                                    Intent intent = new Intent(DropPictureActivity.this, DisplayImageActivity.class);
+                                    intent.putExtra("PACKAGE_ID", packageId); // Pass the ID as an extra
+                                    startActivity(intent);
                                 })
                                 .addOnFailureListener(e -> Toast.makeText(DropPictureActivity.this, "Error storing data", Toast.LENGTH_SHORT).show());
                     } else {
                         Toast.makeText(DropPictureActivity.this, "Unable to fetch location", Toast.LENGTH_SHORT).show();
                     }
-                }).addOnFailureListener(exception -> {
-                    Toast.makeText(DropPictureActivity.this, "Location fetch failed: " + exception.getMessage(), Toast.LENGTH_LONG).show();
-                });
+                }).addOnFailureListener(exception -> Toast.makeText(DropPictureActivity.this, "Location fetch failed: " + exception.getMessage(), Toast.LENGTH_LONG).show());
             });
         }).addOnFailureListener(exception -> {
             // Handle unsuccessful uploads
             Toast.makeText(DropPictureActivity.this, "Upload failed: " + exception.getMessage(), Toast.LENGTH_LONG).show();
         });
     }
+
 
 
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,

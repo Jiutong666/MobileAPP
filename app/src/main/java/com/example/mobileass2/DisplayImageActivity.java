@@ -1,8 +1,11 @@
 package com.example.mobileass2;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -15,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -22,12 +26,16 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -150,7 +158,8 @@ public class DisplayImageActivity extends AppCompatActivity implements OnMapRead
             String imageUrl = document.getString("imageUrl");
             double latitude = document.getDouble("latitude");
             double longitude = document.getDouble("longitude");
-            String userId = auth.getCurrentUser().getUid();
+            String userId = document.getString("userId");
+            fetchAvatarImage(userId);
 
             if (!TextUtils.isEmpty(imageUrl)) {
                 // Load the image using image loading library
@@ -211,6 +220,31 @@ public class DisplayImageActivity extends AppCompatActivity implements OnMapRead
                 .addOnFailureListener(e -> {
                     callback.onError("User not exist.");
                 });
+    }
+
+    private void fetchAvatarImage(String userId) {
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference storageRef = storage.getReference();
+        Toast.makeText(this, userId, Toast.LENGTH_SHORT).show();
+        // Assuming your images are stored in a folder named 'avatars' in Firebase Storage
+        StorageReference avatarRef = storageRef.child("users/" + userId + "/profile.jpg");
+
+        // Download directly into ImageView
+        avatarRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                // Use Glide or Picasso to load the image
+                Glide.with(userAvatar.getContext())
+                        .load(uri)
+                        .into(userAvatar);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // Handle any errors
+                Log.e("Firebase", "Error fetching avatar", exception);
+            }
+        });
     }
 
     private void fetchCommentsFromFirebase() {

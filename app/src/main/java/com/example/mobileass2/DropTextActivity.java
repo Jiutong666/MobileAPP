@@ -174,11 +174,14 @@ public class DropTextActivity extends AppCompatActivity implements OnMapReadyCal
     private void storeDataToFirestore(String title, String content, double latitude, double longitude) {
         String userEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
         Map<String, Object> data = new HashMap<>();
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        data.put("userId", userId);
         data.put("title", title);
         data.put("content", content);
         data.put("latitude", latitude);
         data.put("longitude", longitude);
         data.put("userEmail", userEmail);
+
         data.put("likes", 0);
 
         fireStore.collection("texts").add(data)
